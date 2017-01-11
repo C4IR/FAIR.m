@@ -84,16 +84,19 @@ for j=1:length(files),
       error('unkown filetype');
   end;
   
-  if not(OK) && strcmp(FAIRerror,'on'),
-    fprintf(2,'file <%s> does not perform and error mode is [on]\n',file);
-    error('break')
+  fileOK(j) = OK;
+  if not(OK)
+    fprintf(2,'file <%s> does not perform and error mode is [%s]\n',...
+      file,FAIRerror);
+    if strcmp(FAIRerror,'on'),
+      error('break')
+    end;
   end;
 %   assert( OK == 1, ...
 %     sprintf('file  %4d-of-%4d <%s> has problems',j,length(files),file) );
   if ~OK,
     sprintf('file  %4d-of-%4d <%s> has problems',j,length(files),file);
   end;
-  fileOK(j) = OK;
   
   if strcmp(FAIRkeyboard,'on'),
     fprintf('[keyboard=''on'', see testStart for options]\n')

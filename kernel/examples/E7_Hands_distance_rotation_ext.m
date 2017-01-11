@@ -21,7 +21,7 @@ clear, close all, help(mfilename);
 % setup data
 setup2DPETCTData; level = 6; omega = ML{level}.omega; m = ML{level}.m; 
 
-DM = {'SSD','NCC','MIcc','NGFdot'};
+DM = {'SSD','NCC','MImex','NGFdot'};
 
 
 str = @(w) sprintf('T(y(%s^o))',num2str(w*180/pi));
