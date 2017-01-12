@@ -2,18 +2,40 @@
 see https://github.com/C4IR/FAIR.m for details and license issues.
 
 ## What is it? 
-FAIR stands for Flexible Algorithms for Image Registration and is a package written in MATLAB which can be used for solving the so-called image registration problem (alas co-registration, correspondence, fusion, matching, optical flow, , warping, ...). A very good documentation is the book 
-Jan Modersitzki: FAIR - Flexible Algorithms for Image Registration, SIAM 2009
+FAIR stands for Flexible Algorithms for Image Registration and is a package written in MATLAB which can be used for solving the so-called image registration problem (alas co-registration, correspondence, fusion, matching, optical flow, , warping, ...). 
+A documentation is the book 
 
-@BOOK{2009-FAIR,
-  title = {{FAIR}: Flexible Algorithms for Image Registration},
-  publisher = {SIAM},
-  address = {Philadelphia},
-  year = {2009},
-  author = {J. Modersitzki},
-}
+    Jan Modersitzki: FAIR - Flexible Algorithms for Image Registration, SIAM 2009
 
-The objective is to automatically establish point-to-point correspondences between objects in two different scenes. Given are two (or more) images T and R. Wanted is a geometrical transformation y (correction, deformation, displacement, distortion, ...) such that the transformed image T(y) is similar to R.
+    @BOOK{2009-FAIR,
+      title = {{FAIR}: Flexible Algorithms for Image Registration},
+      publisher = {SIAM},
+      address = {Philadelphia},
+      year = {2009},
+      author = {J. Modersitzki},
+    }
+
+The objective is to automatically establish point-to-point correspondences between objects in two different scenes. Given are two (or more) images T and R. Wanted is a geometrical transformation y (correction, deformation, displacement, distortion, ...) such that the transformed image T(y) is similar to R. Given a similarity/distance measure D (see distances for options) and a regularization for y (see regularizer for options) the problem is phrased in a variational setting
+
+    Minimize the joint energy J with respect to y
+    J(y) = D(T(y),R) + S(y)
+    
+The toolbox provides a variety of 
+    
+    - example data             kernel/data
+    - image models             kernel/imgModels
+    - distance measures        kernel/diatnces
+    - regularizer              kernel/regularizers
+    - transfomation models     kernel/transformations
+    - image viewers            kernel/viewers
+    
+Additionally, the toolbox provides
+
+    - numerical tools          kernel/numeric
+    - matrix-free operators    kernel/matrixFree
+    - landmark registrations   kernel/landmarks
+    - genral tools (i/o etc)   kernel/tools
+    
 
 ##  Purpose? 
 FAIR is primarily designed as an academic and teaching tool. It can be used to explore existing techniques or to invent new features (please let us know and contribute to the community). Though the focus is on exploring methods, FAIR can be - and already has been - used as a prototyping tool for practically relevant registration problems.
