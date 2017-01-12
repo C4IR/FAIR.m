@@ -55,7 +55,7 @@ The main differences to older versions of the codes are
 
 ## Main Developers until 2017
 - Jan Modersitzki Institute of Mathematics and Image Computing, University of Lübeck, Germany
-- Lars Ruthotto, Dept. of Mathematics and Computer Science, Emory University, Atlanta, Trump Country
+- Lars Ruthotto, Dept. of Mathematics and Computer Science, Emory University, Atlanta, USA
 - Fabian Gigengack, European Institute for Molecular Imaging (EIMI), University of Münster, Germany
 
 ## Demos and Screenshots 
