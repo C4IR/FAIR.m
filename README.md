@@ -2,8 +2,9 @@
 see https://github.com/C4IR/FAIR.m for details and license issues.
 
 ## What is it? 
-FAIR stands for Flexible Algorithms for Image Registration and is a package written in MATLAB which can be used for solving the so-called image registration problem (alas co-registration, correspondence, fusion, matching, optical flow, , warping, ...). 
-A documentation is the book 
+FAIR stands for Flexible Algorithms for Image Registration and is a MATLAB (https://de.mathworks.com/) written package for solving the so-called image registration problem (alas co-registration, correspondence, fusion, matching, optical flow, warping, ...). 
+
+A solid documentation is
 
     Jan Modersitzki: FAIR - Flexible Algorithms for Image Registration, SIAM 2009
 
@@ -60,6 +61,7 @@ The main differences to older versions of the codes are
 ## Demos and Screenshots 
 The following list presents all intermediate results and the m-file for a non-parametric multi-level image registration with an affine linear pre-registration for 2D PET-CT data using the normalized gradient field as a distance measure and elastic regularization; a Gauss-Newton scheme is used as optimizer in a matrix free setting (using multigrid for the linear solve). The time was about 10sec for 128x128 data on a standard PC including all graphics and data pre-processing.
 
+Under construction
 [mfile] [data] [multi-level representation] [PIR results level 4] [NPIR results level 4] [NPIR results level 5] [NPIR results level 6] [NPIR results level 7] [final results] [output]
 
 
