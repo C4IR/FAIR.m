@@ -5,7 +5,7 @@
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 %==============================================================================
-% function [Dc,rho,dD,drho,d2psi] = MIcc(Tc,Rc,omega,m,varargin);
+% function [Dc,rho,dD,drho,d2psi] = MImex(Tc,Rc,omega,m,varargin);
 %
 % Mutual Information based distance measure  (using a C implemetation for the joint
 % density, see MIspline for pure MATLAB)  using a general Gauss-Newton type framework.
@@ -39,7 +39,7 @@
 % see also distances/contents
 %==============================================================================
 
-function [Dc,rho,dD,drho,d2psi] = MIcc(Tc,Rc,omega,m,varargin);
+function [Dc,rho,dD,drho,d2psi] = MImex(Tc,Rc,omega,m,varargin);
 
 if nargin == 0,
     help(mfilename);
