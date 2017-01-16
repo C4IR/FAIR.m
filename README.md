@@ -24,11 +24,11 @@ The objective is to automatically establish point-to-point correspondences betwe
     
 The toolbox provides a variety of 
     
-    - example data                 kernel/data
+    - example data for T,R         kernel/data
     - image models                 kernel/imgModels
-    - distance measures            kernel/diatnces
-    - regularizer                  kernel/regularizers
-    - transfomation models         kernel/transformations
+    - distance measures D          kernel/diatnces
+    - regularizer S                kernel/regularizers
+    - transfomation models y       kernel/transformations
     - image viewers                kernel/viewers
     
 Additionally, the toolbox provides
@@ -39,7 +39,7 @@ Additionally, the toolbox provides
     - genral tools (i/o etc)          kernel/tools
     
 
-##  Purpose? 
+##  Purposes? 
 FAIR is primarily designed as an academic and teaching tool. It can be used to explore existing techniques or to invent new features (please let us know and contribute to the community). Though the focus is on exploring methods, FAIR can be - and already has been - used as a prototyping tool for practically relevant registration problems.
 
 ## What is new? 
