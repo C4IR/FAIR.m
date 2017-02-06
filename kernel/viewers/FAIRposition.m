@@ -13,13 +13,6 @@
 
 function pos = FAIRposition(varargin)
 
-persistent theScreen
-
-if isempty(theScreen),
-  theScreen   = get(0,'screensize'); 
-  theScreen(4) = theScreen(4) - 95;
-end;
-
 fig       = getValue('fig',        1,varargin{:});
 increment = getValue('increment', 20,varargin{:});
 position  = getValue('position',  [],varargin{:});
@@ -27,6 +20,24 @@ position  = getValue('position',  [],varargin{:});
 if ~isnumeric(fig),
     fig = fig.Number;
 end;
+
+
+if isempty(position),
+  if not(isnumeric(fig))
+    fig = fig.Number;
+  end;
+  pos = get(0,'MonitorPositions');
+  dx = mod((fig-1)*25,floor(pos(1,4)/2));
+  dy = mod((fig-1)*25,floor(pos(1,3)/2));
+  pos = round([pos(1,1)+dx,0.6*pos(1,4)-dy,0.33*pos(1,3),0.33*pos(1,4)]);
+  return;
+else
+  pos = position
+  return;
+end;
+
+keyboard
+
 
 if isempty(position),
   dx     = (fig-1)*increment;
@@ -80,4 +91,14 @@ j = strcmp(name,varargin);
 if isempty(j), return; end;
 if all(j==0),  return; end;
 value = varargin{max(find(j))+1};
+
+function pos = position(h)
+if not(isnumeric(h))
+  h = h.Number;
+end;
+pos = get(0,'MonitorPositions');
+dx = mod((h-1)*25,floor(pos(1,4)/2));
+dy = mod((h-1)*25,floor(pos(1,3)/2));
+pos = round([pos(1,1)+dx,0.6*pos(1,4)-dy,0.33*pos(1,3),0.33*pos(1,4)]);
+
 %==============================================================================

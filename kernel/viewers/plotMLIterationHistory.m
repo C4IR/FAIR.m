@@ -42,9 +42,9 @@ str = his.str(J); his = his.his(:,J);
 dum = abs(max(his,[],1));
 dum = dum + (dum==0);
 if ~isempty(fig),
-  fig = figure(fig);  
+  fig = figureh(fig);  
 else  
-  fig = figure;     
+  fig = figureh;     
 end;
 
 if ~isnumeric(fig),

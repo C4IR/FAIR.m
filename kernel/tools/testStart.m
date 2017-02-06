@@ -68,6 +68,12 @@ files  = files(FAIRrange);
 
 %% 6. execute all files, see checkFiles for details
 fileOK = FAIRcheckFiles(folder,files,mfilename,'FAIRcompile','off');
+
+J = find(fileOK == 0);
+for j=J,
+  fprintf(2,'-- %-2-of-%2d <%s> does not perform\n',...
+    j,length(J),files{j});
+end;
 assert(all(fileOK == 1), 'some files are not performing');
 %==============================================================================
 

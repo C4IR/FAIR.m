@@ -49,7 +49,7 @@ red   = num2str(100*d1/d0);
 D0    = 255 - abs(T0-R0);
 D1    = 255 - abs(T1-R0);
 FAIRpause(1/100);
-FAIRfigure(fig,'figname',figname,'position',800);
+FAIRfigure(fig,'figname',figname);
 
 fprintf('reduction %s(yc)/%s(xc)=%s%%\n',distance,distance,red);
 

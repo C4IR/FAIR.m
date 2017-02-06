@@ -16,10 +16,10 @@ function [y,dy,d2y] = spline1D(j,x)
 
 
 if nargin == 0, 
-    help(mfilename)
+  help(mfilename)
 	E3_bsplines; 
-	return; 
 	y = 'endOfMinimalExample'; 
+  return;
 end;
 
 % shift x, initialize values, derivative and second derivative

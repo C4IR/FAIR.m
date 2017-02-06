@@ -12,7 +12,7 @@
 
 clear, close all, help(mfilename);
 
-fig = FAIRfigure(1,'position',800,'color','w');
+fig = FAIRfigure(1,'color','w');
 Name    = @(n,g) sprintf('histogram-n=%s-g=%s',int2str(n),int2str(g));
 
 % produce plots of different histograms

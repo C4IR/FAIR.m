@@ -31,20 +31,25 @@ end;
 
 if isempty(fig), 
   fig = figureh;  
-  setPosition = 1;
 else
-  fig = figureh(fig);
-  setPosition = 0;
+  if ishandle(fig),
+    fig = figureh(fig);
+  else
+    fig = figureh(fig);
+  end;
 end;
+
 if ~isnumeric(fig),
   fig = fig.Number;
 end;
 
 figname  = sprintf('[FAIR:%d] %s',fig,figname);
 set(fig,'numbertitle','off','name',figname,'color',color);
-if setPosition,
-    position = FAIRposition('fig',fig,'position',position);
-      set(fig,'position',position);
+
+if not(isempty(position)) && not(strcmp(position,'default')),
+%   keyboard
+%     position = FAIRposition('fig',fig,'position',position);
+    set(fig,'position',position);
 end;
 if nargout == 1, varargout = {fig};  end;
 %==============================================================================

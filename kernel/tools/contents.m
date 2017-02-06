@@ -13,7 +13,8 @@
 %
 %   contents.m          this file
 %   dealOptions.m       deals persistent options for use in main modules
-%               
+%   reportStatus.m      reports the current setting of the toolbox
+%
 %   testFAIR.m          tests the complete FAIR toolbox
 %   testTools.m         test the kernel/tools folder
 %               
@@ -37,7 +38,8 @@ if nargout == 0, help(mfilename); return; end;
 debit = {
   'contents.m'
   'dealOptions.m'
-  
+  'reportStatus.m'
+
   'testFAIR.m'
   'testTools.m'
   
@@ -54,6 +56,7 @@ debit = {
   'FAIRinput.m'
   'FAIRpause.m'
   'FAIRpath.m'
+  
 };
 %==============================================================================
 

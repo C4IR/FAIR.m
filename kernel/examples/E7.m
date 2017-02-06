@@ -34,7 +34,7 @@ switch example
 end
 level = 6; omega = ML{level}.omega; m = ML{level}.m;
 
-DM = {'SSD','NCC','MIcc','NGFdot'};
+DM = {'SSD','NCC','MImex','NGFdot'};
 viewImage('set',viewPara{:})
 filename = fullfile(FAIRpath,'temp',sprintf('%s-%s-%s.mat',mfilename,'rotation',example));
 
@@ -47,7 +47,7 @@ Tin   = imgModel(T,omega,xc);
 Rin   = imgModel(R,omega,xc);
 
 %%  plots
-k = figure(1); clf; set(k,'position',FAIRposition(800),'color','w');
+k = figureh(1); clf; set(k,'color','w');
 subplot(1,2,1); viewImage(Tin,omega,m);
 subplot(1,2,2); viewImage(Rin,omega,m);
 FAIRpause(1);
@@ -79,7 +79,7 @@ for k=1:length(DM),
       Tc = imgModel(T,omega,Y);
       dm(j) = feval(DM{k},Tc,Rin,omega,m,'edge',edge);
       if j== 1,
-        figure(3);
+        figureh(3);
         ph = viewImage(Tc,omega,m);
       else
         set(ph,'cdata',reshape(Tc,m)'); drawnow
@@ -106,7 +106,7 @@ for k=1:4,
   eval(['dm=',variable,';']);
   dm = dm(1:length(w));
   [wOpt,j] = min(dm);
-  figure(k); clf; set(k,'position',FAIRposition(800),'color','w');
+  figureh(k); clf; set(k,'color','w');
   ph = plot(w,dm,'-',w(j),dm(j),'*');
   set(ph,'linewidth',2,'color','k','markersize',20);
   set(gca,'fontsize',30);
@@ -146,7 +146,7 @@ for k=1:length(DM),
       Tc = imgModel(T,omega,Y);
       dm(j) = feval(DM{k},Tc,Rin,omega,m,'edge',edge);
       if j== 1,
-        figure(3);
+        figureh(3);
         ph = viewImage(Tc,omega,m);
       else
         set(ph,'cdata',reshape(Tc,m)'); drawnow
@@ -161,8 +161,8 @@ end;
 
 load(filename)
 
-%figure(1); close(1); figure(1); clf; set(1,'position',position(800),'color','w');
-%figure(2); close(2); figure(2); clf; set(2,'position',position(800),'color','w');
+%figureh(1); close(1); figureh(1); clf; set(1,'position',position(800),'color','w');
+%figureh(2); close(2); figureh(2); clf; set(2,'position',position(800),'color','w');
 shift = [3000,0.5,-1,0.08];
 Ztick = {[0:1000:4000],[0:0.1:0.3],[-1:0:1],[0:0.02:0.06]};
 
@@ -171,17 +171,17 @@ for k=1:4,
   variable = ['DM',DM{k}];
   eval(['dm=',variable,';']);
 
-  fig = figure(10+k);
+  fig = figureh(10+k);
   if ~isnumeric(fig), fig = fig.Number; end;
-  close(fig); figure(fig); set(fig,'position',FAIRposition(800),'color','w');
+  close(fig); figureh(fig); set(fig,'color','w');
   ph=mesh(w1,w2,dm-shift(k)); grid off;
   set(gca,'fontsize',30);
   view(-135,25);
   set(ph,'linewidth',2)
   
-  fig = figure(20+k);
+  fig = figureh(20+k);
   if ~isnumeric(fig), fig = fig.Number; end;
-  close(fig); figure(fig); clf; set(fig,'position',FAIRposition(800),'color','w');
+  close(fig); figureh(fig); clf; set(fig,'color','w');
   contour(w1,w2,dm,10,'linewidth',2);
   set(gca,'fontsize',30);
 end;

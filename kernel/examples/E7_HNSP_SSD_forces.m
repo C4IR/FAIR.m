@@ -26,7 +26,7 @@ axT   = [0.55,0.85,0.32,0.47];
 axR   = [0.6,0.9,0.20,0.35];
 axTF  = [0.55,0.70,0.32,0.395];
 
-FAIRfigure(1,'color','w','position',800);
+FAIRfigure(1,'color','w');
 viewImage(Tc,omega,m); hold on; axis off;
 ph = plot(axT([1,1,2,2,1]),axT([3,4,4,3,3]),'w-','linewidth',4); 
 

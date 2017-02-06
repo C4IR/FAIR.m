@@ -140,7 +140,9 @@ end;
 function OK = FAIRjpg(file)
 try
   B = imread(file);
-  figure(1); clf;
+  figure(1); 
+  set(1,'position',[3400 900 500 500]);
+clf;
   imagesc(B); axis image
   builtin('pause',1)
   OK = 1;

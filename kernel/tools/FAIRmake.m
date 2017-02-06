@@ -51,7 +51,7 @@ folder = {
     'transformations'
     'landmarks'
     'distances'
-    'regularization'
+    'regularizers'
     };
         
 Make = @(file) make(file, overwrite, cores, verbose);
@@ -114,7 +114,7 @@ cd(folder)
 if strcmp(filename,'geometryC.cpp'),
   cd(cdAct);
   return;
-elseif strcmp(filename,'geometrymexC.cpp'),
+elseif strcmp(filename,'geometryMexC.cpp'),
   filename = [filename,' geometryC.cpp'];
 end
 

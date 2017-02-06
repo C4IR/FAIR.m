@@ -10,7 +10,7 @@
 %
 %==============================================================================
 
-FAIRfigure(1,'color','w','position',300); clf
+FAIRfigure(1,'color','w'); clf
 tt = linspace(-3,11,1001);
 p1 = plot(tt,spline1D(0,tt)); hold on; axis([-3,12,0,1])
 set(p1,'linewidth',3,'color','k')
