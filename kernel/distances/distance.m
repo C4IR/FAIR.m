@@ -49,7 +49,21 @@ Tc      = varargin{1};
 Rc      = varargin{2};
 omega   = varargin{3};
 m       = varargin{4};
-  
+
+% check if weights are to be applied and extract current level
+k = find(strcmp(OPTN(1:2:end),'weights'));
+if not(isempty(k))
+    MLw = OPTN{2*k};
+    for k=1:length(MLw)
+        if isfield(MLw{k},'m') && all(MLw{k}.m == m)
+            Wc = MLw{k}.Wc;
+            break
+        end;
+    end;
+    varargin{end+1} = 'weights';
+    varargin{end+1} = Wc;
+end;
+
 [method,optn]  = dealOptions(OPTN,'set','doDerivative',(nargout>3),varargin{5:end});
 [Dc,rc,dD,dr,d2psi] =  feval(method,Tc,Rc,omega,m,optn{:});
   
