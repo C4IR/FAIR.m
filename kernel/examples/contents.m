@@ -161,6 +161,7 @@
 %   E9_Hands_MLIR_SSD_mfElas            MLIR, 2D hand data, splineInter, SSD, mfElastic, GaussNewton
 %   E9_Hands_MLIR_SSD_mbCurv            MLIR, 2D hand data, splineInter, SSD, mbCurvature, GaussNewton
 %   E9_Hands_MLIR_SSD_mfCurv            MLIR, 2D hand data, splineInter, SSD, mbCurvature, GaussNewton
+%   E9_Hands_MLIR_wSSD_mfElas           MLIR, 2D hand data, splineInter, weighted SSD, mbCurvature, GaussNewton
 %   E9_HNSP_MLIR_SSD_mbElas             MLIR, 2D HNSP data, splineInter, SSD, mbElastic, GaussNewton
 %   E9_HNSP_MLIR_SSD_mfElas             MLIR, 2D HNSP data, splineInter, SSD, mfElastic, GaussNewton
 %   E9_HNSP_MLIR_SSD_mbCurv             MLIR, 2D HNSP data, splineInter, SSD, mbCurvature, GaussNewton
@@ -344,11 +345,12 @@ debit = {
     'E9_Hands_MLIR_SSD_mfElas.m'
     'E9_Hands_MLIR_SSD_mbCurv.m'
     'E9_Hands_MLIR_SSD_mfCurv.m'
+    'E9_Hands_MLIR_wSSD_mfElas'
     'E9_HNSP_MLIR_SSD_mbElas.m'
     'E9_HNSP_MLIR_SSD_mfElas.m'
     'E9_HNSP_MLIR_SSD_mbCurv.m'
     'E9_HNSP_MLIR_SSD_mfCurv.m'
-
+    
     'E9_MRIhead_MLIR_SSD_mbElas.m'
     'E9_MRIhead_MLIR_MI_mbElas.m'
     'E9_MRIhead_MLIR_NGF_mbElas.m'
