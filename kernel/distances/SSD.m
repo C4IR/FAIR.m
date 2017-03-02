@@ -11,8 +11,11 @@
 % Sum of Squared Differences based distance measure 
 % for usage in a general Gauss-Newton type framework
 %
-% computes D(Tc,Rc) = hd*psi(r(Tc)), r = Tc-Rc, psi = 0.5*r'*r 
-% and derivatives, dr = dT, d2psi= hd*I, hd = prod(omega./m)
+% For use of weights see line 38. 
+%
+% computes D(Tc,Rc) = hd*psi(r(Tc)), r = Tc-Rc, psi = 0.5*r'*W*r 
+% and derivatives, dr = dT, d2psi= hd*W, hd = prod(omega./m). 
+% W either scalar or matrix, e.g., W=speye(prod(m)); details see below. 
 %
 %   setup2DhandData;
 %   xc = getCellCenteredGrid(omega,m);
@@ -30,7 +33,10 @@
 %  rc         Tc-Rc
 %  dD         dpsi*dr
 %  dr         dT
-%  d2psi      hd = prod(omega./m)
+%  d2psi      d2psi = prod(omega./m)*diag(weights)
+% 
+% WEIGHTING: W is either a scalar or a matrix. For an example using weighted SSD 
+%            in multi-level registration see E9_Hands_MLIR_wSSD_mfElas.m
 % 
 % see also distances/contents
 %==============================================================================
@@ -44,22 +50,24 @@ if nargin==0
     return;
 end
 
-Dc  = []; dD = []; rc  = []; dr = []; d2psi = [];
+Dc  = []; dD = []; rc  = []; dr = []; 
 doDerivative = (nargout > 2);
-
+weights = 1.0;
 for k=1:2:length(varargin), % overwrite default parameter
   eval([varargin{k},'=varargin{',int2str(k+1),'};']);
 end;
 
 hd = prod((omega(2:2:end)-omega(1:2:end))./m); % voxel size for integration
+
+d2psi = hd*weights;
+
 rc = Tc - Rc;                         % the residual
-Dc = 0.5*hd * (rc'*rc);            % the SSD
+Dc = 0.5 * (rc'*d2psi*rc);            % the SSD
 
 if ~doDerivative, return; end;
 
 dr = 1;                         % or speye(length(rc),length(rc)); 
-dD = hd * rc'*dr; 
-d2psi = hd;
+dD = rc'*d2psi*dr; 
 
 %------------------------------------------------------------------------------
 function runMinimalExample
