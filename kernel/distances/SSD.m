@@ -35,7 +35,7 @@
 %  dr         dT
 %  d2psi      d2psi = prod(omega./m)*diag(weights)
 % 
-% WEIGHTING: W is either scalar or matrix. For an example using weighted SSD 
+% WEIGHTING: W is either a scalar or a matrix. For an example using weighted SSD 
 %            in multi-level registration see E9_Hands_MLIR_wSSD_mfElas.m
 % 
 % see also distances/contents
