@@ -45,9 +45,12 @@ H.d2D       = [];
 
 if isfield(d2D,'M'), % get approximation to d2D
   M     = d2D.M;
-elseif isfield(d2D,'dr'),
-%   M           = diag(d2D.dr'*d2D.d2psi*d2D.dr);
-  M           =  sum(d2D.dr .* d2D.dr,1) .* d2D.d2psi;
+elseif isfield(d2D,'dr')
+  if isscalar(d2D.d2psi)
+     M           =  sum(d2D.dr .* d2D.dr,1) .* d2D.d2psi;
+  else
+      M           = diag(d2D.dr'*d2D.d2psi*d2D.dr);
+  end
   M           = d2D.P(full(M(:)));
 else
   M = 0;
