@@ -15,7 +15,7 @@
 %
 % computes D(Tc,Rc) = hd*psi(r(Tc)), r = Tc-Rc, psi = 0.5*r'*W*r 
 % and derivatives, dr = dT, d2psi= hd*W, hd = prod(omega./m). 
-% W either scalar or mastrix, e.g., W=speye(prod(m)); details see below. 
+% W either scalar or matrix, e.g., W=speye(prod(m)); details see below. 
 %
 %   setup2DhandData;
 %   xc = getCellCenteredGrid(omega,m);
@@ -26,7 +26,7 @@
 % Input: 
 %  Tc, Rc     template and reference
 %  omega, m   represents domain and discretization
-%  varargin   optional parameters, e.g. doDerivative=0, weights=1.0
+%  varargin   optional parameters, e.g. doDerivative=0
 %
 % Output:
 %  Dc         SSD(Tc,Rc)
