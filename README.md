@@ -3,7 +3,7 @@ see https://github.com/C4IR/FAIR.m for details and license issues.
 ![](https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIR.png =250x200)
 
 ![](https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIR.png =250x250)
-![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png | width=100)
+![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png | width=50)
 
 
 ## What is it? 
