@@ -8,16 +8,16 @@
 % This is the main testing file
 %==============================================================================
 clc;
-
+cd(FAIRpath);
 FAIRtestPara('set',...
   'FAIRedit','off',...
   'FAIRcompile','off',...
-  'FAIRignoceComiles','on',...
+  'FAIRignoreCompiles','on',...
   'FAIRrun','on',...
   'FAIRrange','full',...
   'FAIRextension','all',...
   'FAIRfilter','',...
-  'FAIRerror','on',...
+  'FAIRerror','off',...
   'FAIRkeyboard','off');
 
 FAIRtestPara('disp');
@@ -35,17 +35,17 @@ if 1,
   cd(cdAct);
 end;
 
-% testData
-% testImgModels
-% testTransformations
-% testLandmarks
-% testDistances
-% testRegularizers
-% testMatrixFree
-% testNumerics
+testData
+testImgModels
+testTransformations
+testLandmarks
+testDistances
+testRegularizers
+testMatrixFree
+testNumerics
 testExamples
-% testViewer
-% testTools
+testViewer
+testTools
 
 %==============================================================================
 
