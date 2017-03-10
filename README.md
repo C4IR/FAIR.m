@@ -1,6 +1,6 @@
 # FAIR: Flexible Algorithms for Image Registration 
 see https://github.com/C4IR/FAIR.m for details and license issues.
-![](https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIR.jpg)
+![](https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIR.jpg | width=200)
 
 
 ## What is it? 
