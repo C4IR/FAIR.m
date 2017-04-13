@@ -68,15 +68,10 @@ for j=1:length(h),
   T1(j) = norm(f0+h(j)*dvf - ft);  % TaylorPoly 1
   fprintf('h=%12.4e     T0=%12.4e    T1=%12.4e\n',h(j),T0(j),T1(j));
 end;
-fh = FAIRfigure(fig);
 
-% if isempty(fig),
-%   fh = figureh;
-% else
-%   fh = figureh(fig);
-% end;
+fh = FAIRfigure(fig);
 ph = loglog(h,[T0;T1]); set(ph(2),'linestyle','--')
-th  = title(sprintf('%s: |f-f(h)|,|f+h*dvf -f(h)| vs. h',mfilename));
+th = title(sprintf('%s: |f-f(h)|,|f+h*dvf -f(h)| vs. h',mfilename));
 
 if nargout>0,
   varargout = {fh,ph,th};

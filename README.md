@@ -1,5 +1,8 @@
 # FAIR: Flexible Algorithms for Image Registration 
 see https://github.com/C4IR/FAIR.m for details and license issues.
+    
+| <img src="https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIR.jpg"  width="200"  /> | <img src="https://github.com/C4IR/FAIR.m/blob/master/pictures/FAIRm.jpg"  width="200"  /> | <img src="https://github.com/C4IR/FAIR.m/blob/master/pictures/NM4IR.jpg"  width="200"  /> |
+
 
 ## What is it? 
 FAIR stands for Flexible Algorithms for Image Registration and is a MATLAB (https://de.mathworks.com/) written package for solving the so-called image registration problem (alas co-registration, correspondence, fusion, matching, optical flow, warping, ...). 
