@@ -345,7 +345,7 @@ debit = {
     'E9_Hands_MLIR_SSD_mfElas.m'
     'E9_Hands_MLIR_SSD_mbCurv.m'
     'E9_Hands_MLIR_SSD_mfCurv.m'
-    'E9_Hands_MLIR_wSSD_mfElas'
+    'E9_Hands_MLIR_wSSD_mfElas.m'
     'E9_HNSP_MLIR_SSD_mbElas.m'
     'E9_HNSP_MLIR_SSD_mfElas.m'
     'E9_HNSP_MLIR_SSD_mbCurv.m'
