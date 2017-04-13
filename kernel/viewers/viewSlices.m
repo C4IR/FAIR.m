@@ -58,6 +58,7 @@ for i=1:length(s1),
   hi = findobj('type','surface');
   h1(end+1) = hi(1);
   set(h1(end),'CData',Ti,'FaceColor','texturemap','edgecolor','none');
+  hold on;
 end;
 ih = [ih;h1]; h1 = [];
 
@@ -74,6 +75,7 @@ for i=1:length(s2),
   hi = findobj('type','surface');
   h1(end+1) = hi(1);
   set(h1(end),'CData',Ti,'FaceColor','texturemap','edgecolor','none');
+  hold on;
 end;
 ih = [ih;h1]; h1 = [];
 
@@ -90,7 +92,9 @@ for i=1:length(s3),
   hi = findobj('type','surface');
   h1(end+1) = hi(1);
   set(h1(end),'CData',Ti,'FaceColor','texturemap','edgecolor','none');
+  hold on;
 end;
+hold off;
 ih = [ih;h1];
 
 if nargout == 1, varargout = {ih};  end;

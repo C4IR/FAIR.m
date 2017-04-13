@@ -39,7 +39,7 @@ n   = length(x)/dim;
 try
     [Tc,dT] = splineInterMexC(double(T(:)),omega,m,x(:),doDerivative,boundary==1);
 catch err
-    FAIRerror(err);
+    error(err);
 end
 if doDerivative && not(matrixFree)
     dT = spdiags(dT,n*(0:(dim-1)),n,dim*n);
