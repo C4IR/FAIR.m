@@ -24,7 +24,9 @@
 % the operator H can be a
 %    - matrix (matrixBased)
 %    - function (coding the action ofH) 
-%    - struct (descipig pieces of a complex H)
+%    - struct where H either describes the pieces of a complex H or
+%      contains a field 'solver' that provides a function_handle to a
+%      tailored solver
 %
 %  (1) action of H: distance + regularizer,
 %       H = P'*dr'*d2psi*dr*P + d2S
@@ -62,9 +64,14 @@ end;
 
 
 if isstruct(H), % matrixFree mode, configure operator
-  Hoperator = @(x) ...
-    H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-    + H.d2S.d2S(x,H.omega,H.m);  
+    if isfield(H,'solver') && isa(H.solver,'function_handle')
+        dy = H.solver(rhs,H,maxIterCG,tolCG);
+        solver = H.solver;
+        return;
+    end
+    Hoperator = @(x) ...
+        H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+        + H.d2S.d2S(x,H.omega,H.m);
 end;
 
 %------------------------------------------------------------------------------
