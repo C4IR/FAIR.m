@@ -32,12 +32,11 @@ if nargin==0
 end;
 
 % parameter initialization -----------------------------------------------
-lineSearch   = @Armijo;         % default line search
 maxIter      = 10;              % maximum number of iterations
 tolJ         = 1e-3;            % for stopping, objective function
 tolY         = 1e-2;            %   - " -     , current value
 tolG         = 1e-2;            %   - " -     , norm of gradient
-lineSearch   = @Armijo;          % linesearch scheme
+lineSearch   = @Armijo;         % linesearch scheme
 LSmaxIter    = 10;              % maximum number of line search iterations
 LSreduction  = 1e-4;            % minimal reduction in line search
 vecNorm      = @norm;           % norm to be used for dJ and dy    
@@ -58,8 +57,15 @@ if isempty(yStop), yStop  = yc; end; % yStop used for stopping only
 % -- end parameter setup   ----------------------------------------------
 
 % some output
+if isstring(solver)
+    solverName = solver;
+elseif isa(solver,'function_handle')
+    solverName = func2str(solver);
+else
+    error(1);
+end
 FAIRmessage(sprintf('JM 2011/01/02 : %s / %s / %s',...
-  mfilename,func2str(lineSearch),solver))
+  mfilename,func2str(lineSearch),solverName))
 fprintf('[ maxIter=%s / tolJ=%s / tolY=%s / tolG=%s / numel(yc)=%d]\n',...
   num2str(maxIter),num2str(tolJ),num2str(tolY),num2str(tolG),length(yc));
 

@@ -92,11 +92,24 @@ if strcmp(task,'set') || strcmp(task,'reset'),
       grid       = 'nodal';
       solver     = 'backslash';
 
+
     case 'mfHyperElastic',
       scheme     = 'hyperElastic';
       matrixFree = 1;
       grid       = 'nodal';
       solver     = 'PCG-hyperElastic';
+      
+    case 'mbHyperElasticFEM',
+      scheme     = 'hyperElasticFEM';
+      matrixFree = 0;
+      grid       = 'FEM';
+      solver     = 'backslash';
+
+    case 'mbElasticFEM',
+      scheme     = 'elasticFEM';
+      matrixFree = 0;
+      grid       = 'FEM';
+      solver     = 'backslash';
 
     otherwise,
       error(mfilename)

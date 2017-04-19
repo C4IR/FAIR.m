@@ -24,7 +24,7 @@
 % the operator H can be a
 %    - matrix (matrixBased)
 %    - function (coding the action ofH) 
-%    - struct (descipig pieces of a complex H)
+%    - struct where H describes the pieces of a complex H
 %
 %  (1) action of H: distance + regularizer,
 %       H = P'*dr'*d2psi*dr*P + d2S
@@ -60,11 +60,15 @@ if isempty(solver) && isnumeric(H),
   solver = 'backslash';
 end;
 
+if isa(solver,'function_handle')
+   dy     = solver(rhs,H,maxIterCG,tolCG);
+   return;
+end
 
 if isstruct(H), % matrixFree mode, configure operator
-  Hoperator = @(x) ...
-    H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-    + H.d2S.d2S(x,H.omega,H.m);  
+    Hoperator = @(x) ...
+        H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+        + H.d2S.d2S(x,H.omega,H.m);
 end;
 
 %------------------------------------------------------------------------------
@@ -161,6 +165,7 @@ switch solver
        D         = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
        Preconditioner = @(x) D.\x; % Jacobi preconditioner
        [dy,flag,relres,iter] = pcg(Hoperator,rhs,tolCG,maxIterCG,Preconditioner);
+
   otherwise,
     keyboard
     error(1)
