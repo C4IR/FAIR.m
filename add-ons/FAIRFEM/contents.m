@@ -2,16 +2,16 @@
 % This code is part of the Finite Element Method app for the Matlab-based toolbox
 %  FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
-% - https://github.com/C4IR/FAIRFEM 
+% - https://github.com/C4IR/FAIR.m 
 %==============================================================================
 %
-% Image Registration using Finite Element Method discretizations
+% Image Registration using Finite Element Method discretizations.
 %
-% This toolbox requires FAIR (obtained from https://github.com/C4IR/FAIRFEM)
+% For a quick example, type: EFEM_Hands2DMLIRFEM.m
 %
-% Contents of FAIRFEM toolbox
+% Contents of FAIRFEM toolbox:
 %
-% ArmijoDiffeomorghicFEM.m  - backtracked line search, see also ArmijoDiffeomorphic.m
+% ArmijoDiffeomorphicFEM.m  - backtracked line search, see also ArmijoDiffeomorphic.m
 % FAIRplotsFEM.m            - adjusted plot tool
 % FEMobjFctn.m              - objective function
 % FEMPIRobjFctn.m           - objective function for mass-preserving registration
@@ -23,7 +23,7 @@
 % getDeterminant.m          - computes Jacobian determinant
 %
 % Meshes: A selection of triangular and tetrahedral meshes can be found in
-% the folder meshes
+% the folder meshes.
 %
 % Examples:
 %

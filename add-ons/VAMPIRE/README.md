@@ -1,10 +1,10 @@
 # VAMPIRE.m
-see https://github.com/C4IR/VAMPIRE.m for details and license issues.
+VAMPIRE stands for Variational Algorithm for Mass-Preserving Image REgistration and is an add-on to the FAIR toolbox; see https://github.com/C4IR/FAIR.m for details and license issues and VAMPIRE/contents.m for overview and advice on VAMPIRE.
 
 ## What is it? 
-VAMPIRE stands for Variational Algorithm for Mass-Preserving Image REgistration and is an extension to the FAIR toolbox written in MATLAB (https://de.mathworks.com/). The VAMPIRE model is mass-preserving by design and thus adequate in situations where the overall integral of image intensities needs to be preserved in the registration. For example, VAMPIRE has been used for motion correction in cardiac Positron Emission Tomography (PET).
+VAMPIRE is a smart implementation of a mass-preserving registration scheme and thus adequate in situations where the overall integral of image intensities needs to be preserved in the registration. VAMPIRE has been used for motion correction in cardiac Positron Emission Tomography (PET) and other applications.
 
-The approach is described in 
+The mathematics and the algorithm are described in 
 
        @article{GigengackEtAl2012,
                 author = {Gigengack, F and Ruthotto, L and Burger, M and Wolters, C H and Jiang, Xiaoyi and Schafers, K P},
@@ -19,14 +19,6 @@ The approach is described in
                 }
 
 Please cite this work when using VAMPIRE in your research.
-
-## Getting started
-
-VAMPIRE is an extension to the FAIR toolbox. Please obtain a copy at https://github.com/C4IR/FAIR.m and make sure both packages are in your MATLAB path. Finally, take a look at some examples:
-
-```
-EV_3Dmouse_VAMPIRE
-```
 
 ## Main Developers until 2017
 - Lars Ruthotto, Dept. of Mathematics and Computer Science, Emory University, Atlanta, USA
