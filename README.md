@@ -68,12 +68,8 @@ Under construction
 [mfile] [data] [multi-level representation] [PIR results level 4] [NPIR results level 4] [NPIR results level 5] [NPIR results level 6] [NPIR results level 7] [final results] [output]
 
 
-## Available Apps
+## Available Add-Ons
 FAIR not only provides opportunities to develop specific building blocks but also to redesign fundamental structures. As modifications can be severe, we decided to split the toolbox into a kernel and add-ons. The stand alone kernel provides all the basic functionality. The add-ons can be tuned to even overlay standard behaviour. In the following, we present some examples. We hope to extend this list with the help of your contributions.
 
-Following apps will be available soon:
-- EPI please contact Fabian Gigengack or Lars Ruthotto
-- DTI Correction please contact Fabian Gigengack or Lars Ruthotto
-- VAMPIRE please contact Fabian Gigengack or Lars Ruthotto
-
+Please see the folder [`add-ons`](https://github.com/C4IR/FAIR.m/tree/master/add-ons) for currently available extensions.
 
