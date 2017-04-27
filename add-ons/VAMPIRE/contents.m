@@ -2,7 +2,7 @@
 % This code is part of the VAMPIRE app for the Matlab-based toolbox
 %  FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
-% - https://github.com/C4IR/VAMPIRE.m 
+% - https://github.com/C4IR/FAIR.m 
 %==============================================================================
 %
 % VAMPIRE - Variational Algorithm for Mass-Preserving Image REgistration
@@ -27,9 +27,9 @@
 %                               x          xx                              
 % 
 %
-% This toolbox requires FAIR (obtained from https://github.com/C4IR/FAIRFEM)
+% For a quick example, run: EV_3Dmouse_VAMPIRE.m
 %
-% Contents of VAMPIRE toolbox
+% Contents of VAMPIRE toolbox:
 %
 % VAMPIRENPIRobjFctn.m   - objective function for non-parametric registration
 % VAMPIREPIRobjFctn.m    - objective function for non-parametric registration
