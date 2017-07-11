@@ -174,12 +174,12 @@ for level=minLevel:maxLevel
 
   % compute yRef = xc or yc = trafo(wc,xc) on the appropriate grid 
   if isempty(wc), % use yRef(x) = x
-    yRef = xc;  
+    yRef = xc;
   else            % compute yn=y(wc,xNodal) and interpolate on current grid    
     yn   = trafo(wc,xc(:));   
     yRef = reshape(yn,[],dim);  
   end;
-  Mesh.xn = yRef;%reshape(yn,[],dim);
+  Mesh.xn = reshape(yn,[],dim);
     
   % compute starting guess y0
   if level == minLevel,

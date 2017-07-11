@@ -41,6 +41,7 @@ if ~exist(fairTemp,'dir'), mkdir(fairTemp);  end;
 % add subfolder containing the different parts
 addpath(genpath(fullfile(FAIRpath,'kernel')));
 addpath(fullfile(FAIRpath,'temp'));
+addpath(genpath(fullfile(FAIRpath,'add-ons')));
 
 message({
     '[new to FAIR? try the numerous examples in kernel/examples]'
