@@ -1,7 +1,7 @@
 # A Lagrangian Gauss–Newton–Krylov solver for mass- and intensity-preserving diffeomorphic image registration
 see https://github.com/C4IR/FAIR.m/master/tree/add-ons/LagLDDMM for details and license issues.
 
-| <img src="https://github.com/C4IR/FAIR.m/blob/master/pictures/LDDMM.jpg"  width="300"  /> |
+| <img src="https://github.com/C4IR/FAIR.m/blob/master/pictures/LDDMM.png"  width="300"  /> |
     
 ## What is it? 
 
