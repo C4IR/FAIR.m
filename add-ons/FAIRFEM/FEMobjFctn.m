@@ -118,6 +118,8 @@ else
   % d2D   = P'*dr'*d2psi*dr*P 
   % P and P' are operators matrix free 
   H.Mesh      = Mesh;
+  H.omega     = omega;
+  H.m         = m;
   H.d2D.how   = 'P''*dr''*d2psi*dr*P';
   H.d2D.P     = P;
   H.d2D.dr    = dr;

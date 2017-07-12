@@ -110,6 +110,12 @@ if strcmp(task,'set') || strcmp(task,'reset'),
       matrixFree = 0;
       grid       = 'FEM';
       solver     = 'backslash';
+      
+   case 'mfHyperElasticFEM',
+      scheme     = 'hyperElasticFEM';
+      matrixFree = 1;
+      grid       = 'FEM';
+      solver     = 'PCG-hyperElastic';
 
     otherwise,
       error(mfilename)

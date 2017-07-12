@@ -152,7 +152,9 @@ if not(matrixFree), % matrix-based
     
 else % matrix-free
     d2S.regularizer = regularizer;
-    d2S.alpha  = alpha;
+    d2S.alpha       = alpha;
+    d2S.yc          = yc;
+    d2S.solver      = 'PCG-hyperElastic';%@FEMMultiGridSolveHyper;
     % code only diffusion part for B
     d2S.By     = @(u,Mesh) Mesh.mfGRAD.D(u);
     d2S.BTy    = @(u,Mesh) Mesh.mfGRAD.Dadj(u);
@@ -161,11 +163,11 @@ else % matrix-free
     d2S.diagLength   = @(Mesh) getDiagLength(Mesh,alphaLength);
     d2S.diagArea     = [];%@(Mesh) getDiagArea(Mesh,alphaLength);
     d2S.diagVol      = @(Mesh) getDiagVolume(Mesh,yc,alphaVolume);
-    d2S.diag   = @(Mesh) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
-    d2S.solver = @FEMMultiGridSolveHyper;
-    d2S.d2S  = @(uc,Mesh) ...
+    d2S.diag   = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
+    
+    d2S.d2S  = @(uc,omega,m,yc) ...
         alphaLength *  ...
-        diffusionOperator(Mesh.vol *Mesh.mfB(uc,Mesh,'By'),Mesh,'BTy') ...
+        d2S.BTy(repmat(Mesh.vol,[dim^2,1]).*d2S.By(uc,Mesh),Mesh) ...   
         + alphaVolume *  ...
         volumeOperator(yc,Mesh,uc, Mesh.vol);
     
@@ -174,24 +176,25 @@ else % matrix-free
     Slength  = .5*dSlength*uc;
     
     % volume term
-    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2; 
+    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;
     yc = reshape(yc,[],2);
     By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
     det = By(:,1).*By(:,4) - By(:,3) .* By(:,2);
     [G,dG,d2G] = psi(det,doDerivative);
     Svol = alphaVolume*sum(Mesh.vol.*G);
-    
-    dDet  = @(x) [ ...
-        dx1.Dadj(By(:,4).*x)-dx2.Dadj(By(:,3).*x);...
-        -dx1.Dadj(By(:,2).*x)+dx2.Dadj(By(:,1).*x)];
-    dSvol = alphaVolume * transpose(dDet(dG.*Mesh.vol)  );
-    
-    
     Sc = Slength + Svol;
-    dS = dSlength + dSvol;
     
-    d2S.Dy = By;
-    d2S.d2G = d2G;
+    if doDerivative
+        dDet  = @(x) [ ...
+            dx1.Dadj(By(:,4).*x)-dx2.Dadj(By(:,3).*x);...
+           -dx1.Dadj(By(:,2).*x)+dx2.Dadj(By(:,1).*x)]; 
+        dSvol = alphaVolume * transpose(dDet(dG.*Mesh.vol)  );
+
+        dS = dSlength + dSvol;
+
+        d2S.Dy = By;
+        d2S.d2G = d2G;
+    end
     
 end
 
@@ -233,38 +236,42 @@ vol = Mesh.vol;
 if dim==2
     xn = Mesh.xn;
     % get edges
-    e1 =  Mesh.mfP1(xn) - Mesh.mfP3(xn);
-    e2 =  Mesh.mfP2(xn) - Mesh.mfP3(xn);
-    e3 =  Mesh.mfP1(xn) - Mesh.mfP2(xn);
+    e1 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,3);
+    e2 =  Mesh.mfPi(xn,2) - Mesh.mfPi(xn,3);
+    e3 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,2);
     
     % compute gradients of basis functions
-    dphi1 =   ([ e2(:,2) -e2(:,1)]./vol);
-    dphi2 =   ([-e1(:,2)  e1(:,1)]./vol);
-    dphi3 =   ([ e3(:,2) -e3(:,1)]./vol);
+    dphi1 =   ([ e2(:,2) -e2(:,1)]./[2*vol,2*vol]);
+    dphi2 =   ([-e1(:,2)  e1(:,1)]./[2*vol,2*vol]);
+    dphi3 =   ([ e3(:,2) -e3(:,1)]./[2*vol,2*vol]);
     
     % compute diagonal of volume regularizer
     % MB : dDet = [sdiag(By(:,4)), sdiag(-By(:,3)) , sdiag(-By(:,2)), sdiag(By(:,1))] * B;
-    [dx1, dx2] = getGradientMatrixFEM(Mesh);
+    [dx1, dx2] = getGradientMatrixFEM(Mesh,1);
     yc = reshape(yc,[],2);
     By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
     det = By(:,1).*By(:,4) - By(:,3) .* By(:,2);
     [~,~,d2G] = psi(det,1);
     
     % get boundaries
-    Dxi = @(i,j) Mesh.mfP1(d2G.*(By(:,j).*dphi1(:,i)).^2) ...
-        + Mesh.mfP2(d2G.*(By(:,j).*dphi2(:,i)).^2) ...
-        + Mesh.mfP3(d2G.*(By(:,j).*dphi3(:,i)).^2); % diagonal of Dxi'*Dxi
+    Dxi = @(i,j) Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi1(:,i)).^2,1) ... 
+        + Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi2(:,i)).^2,2) ...
+        + Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi3(:,i)).^2,3); % diagonal of Dxi'*Dxi 
     
-    D = [Dxi(1,4)+ Dxi(2,3) ;Dxi(1,2)+ Dxi(2,1)];
+    Dxy = @(i,j,k,l) Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi1(:,i)).*(By(:,l).*dphi1(:,k)),1) ... % byproduct terms for verifications
+        + Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi2(:,i)).*(By(:,l).*dphi2(:,k)),2) ...
+        + Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi3(:,i)).*(By(:,l).*dphi3(:,k)),3); % diagonal of Dxi'*Dxi 
+    
+    D = [Dxi(1,4)+ Dxi(2,3) - 2*Dxy(1,4,2,3) ;Dxi(1,2)+ Dxi(2,1) - 2*Dxy(1,2,2,1)];
 else
     error('nyi');
 end
-D = alphaVolume*vol*D;
+D = alphaVolume*D;
 
 
 % compute d2Svol*x
 function By = volumeOperator(yc,Mesh,x,vol)
-[dx1, dx2] = getGradientMatrixFEM(Mesh);
+[dx1, dx2] = getGradientMatrixFEM(Mesh,1);
 % volume regularization
 yc = reshape(yc,[],2);
 By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
@@ -290,24 +297,24 @@ vol = Mesh.vol;
 if dim==2
     xn = Mesh.xn;
     % get edges
-    e1 =  Mesh.mfP1(xn) - Mesh.mfP3(xn);
-    e2 =  Mesh.mfP2(xn) - Mesh.mfP3(xn);
-    e3 =  Mesh.mfP1(xn) - Mesh.mfP2(xn);
+    e1 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,3);
+    e2 =  Mesh.mfPi(xn,2) - Mesh.mfPi(xn,3);
+    e3 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,2);
     
     % compute gradients of basis functions
-    dphi1 =   ([ e2(:,2) -e2(:,1)]./vol);
-    dphi2 =   ([-e1(:,2)  e1(:,1)]./vol);
-    dphi3 =   ([ e3(:,2) -e3(:,1)]./vol);
+    dphi1 =   ([ e2(:,2) -e2(:,1)]./[2*vol,2*vol]);
+    dphi2 =   ([-e1(:,2)  e1(:,1)]./[2*vol,2*vol]);
+    dphi3 =   ([ e3(:,2) -e3(:,1)]./[2*vol,2*vol]);
     
     % get boundaries
-    Dxi = @(i) Mesh.mfP1(dphi1(:,i).^2) + Mesh.mfP2(dphi2(:,i).^2) + Mesh.mfP3(dphi3(:,i).^2); % diagonal of Dx1'*Dx1
-    
+    Dxi = @(i) Mesh.mfPi(vol.*dphi1(:,i).^2,1) + Mesh.mfPi(vol.*dphi2(:,i).^2,2) + Mesh.mfPi(vol.*dphi3(:,i).^2,3); % diagonal of Dx1'*Dx1
+        
     D = Dxi(1)+ Dxi(2);
     D = [D;D];
 else
     error('nyi');
 end
-D = alphaLength*vol*D(:);
+D = alphaLength*D(:);
 
 
 
