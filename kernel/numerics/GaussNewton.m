@@ -57,7 +57,7 @@ if isempty(yStop), yStop  = yc; end; % yStop used for stopping only
 % -- end parameter setup   ----------------------------------------------
 
 % some output
-if isstring(solver)
+if isstring(solver) || ischar(solver)
     solverName = solver;
 elseif isa(solver,'function_handle')
     solverName = func2str(solver);
