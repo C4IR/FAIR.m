@@ -25,9 +25,12 @@
 % getTrafoFromVelocityRK4.m                     - integrator for characteristics
 % getVelocityStartingGuess.m                    - constructs starting guess of correct size
 % idctn.m                                       - N-D idct
-% mfCurvatureST.m                               - curvature regularizer for nonstationary velocities
-% mfDiffusionCC.m                               - diffusion regularizer for stationary velocities
-% mfDiffusionST.m                               - diffusion regularizer for nonstationary velocities
+% mfCurvatureST.m                               - matrix-free spatio-temporal curvature regularizer
+% mfDiffusionCC.m                               - matrix-free spatial diffusion regularizer 
+% mfDiffusionST.m                               - matrix-free spatio-temporal diffusion regularizer
+% mbCurvatureST.m                               - matrix-based spatio-temporal curvature regularizer
+% mbDiffusionCC.m                               - matrix-based spatial diffusion regularizer 
+% mbDiffusionST.m                               - matrix-based spatio-temporal diffusion regularizer
 % solveSpectral.m                               - spectral solver for diff ops
 % spectralPrecondPCG.m                          - preconditioner
 % 
@@ -37,6 +40,9 @@
 % ELDDMM_2Ddisc2C_mfCurvatureST.m
 % ELDDMM_2Ddisc2C_mfDiffusionCC.m
 % ELDDMM_2Ddisc2C_mfDiffusionST.m
+% ELDDMM_2Ddisc2C_mbCurvatureST.m
+% ELDDMM_2Ddisc2C_mbDiffusionCC.m
+% ELDDMM_2Ddisc2C_mbDiffusionST.m
 % ELDDMM_2Dhands_mfDiffusionCC.m
 % ELDDMM_Precond_diffusionCC.m
 % ELDDMM_Precond_diffusionST.m
@@ -73,6 +79,10 @@ debit = {
 		  'mfCurvatureST.m'
 		  'mfDiffusionCC.m'
 		  'mfDiffusionST.m'
+		  'mbCurvatureST.m'
+		  'mbDiffusionCC.m'
+		  'mbDiffusionST.m'
 		  'solveSpectral.m'
 		  'spectralPrecondPCG.m'
+          'testLagLDDMM.m'
         };

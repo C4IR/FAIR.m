@@ -8,10 +8,11 @@
 %
 % function [Sc,dS,d2S] = curvatureST(uc,omega,m,varargin)
 %
-% computes spatio-temporal curvature regularization energy for vc
+% Matrix-free spatio-temporal curvature regularization energy for vc
 % where vc is cell-centered
 %
-% S(u) = 0.5 * \int_{\omega} alpha(1)*u(x)'*A*u(x)+ alpha(2)*u(x)'*B*u(x) dx,
+% Sv) = 0.5 * \int_{\omega}\int_0^1 
+%               alpha(1)*v(x,t)'*A*v(x,t)+ alpha(2)*v(x,t)'*B*v(x,t) dx dt,
 %
 % where A is the curvature operator and B the first-order time derivative
 % operator.

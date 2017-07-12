@@ -116,57 +116,6 @@ if strcmp(task,'set') || strcmp(task,'reset'),
             [grid,matrixFree,solver] = feval(scheme,'para',[],[],OPTN{:});
     end;
     
-    %   MF = {'mfElastic','mfCurvature','mfCurvatureMex','mfHyperElastic'};
-    %   MB = {'mbElastic','mbHyperElastic'};
-    %
-    %   mf =  any(strcmp(method,MF));
-    %   mb =  any(strcmp(method,MB));
-    %
-    %   NO  = {'mbHyperElastic','mfHyperElastic'};
-    %   CC  = {'mbCurvature','mfCurvature'};
-    %   STG = {'mbElastic','mfElastic'};
-    %
-    %   if any(strcmp(method,NO))
-    %     grid = 'nodal'
-    %   elseif any(strcmp(method,CC))
-    %     grid = 'cell-centered';
-    %   elseif any(strcmp(method,STG))
-    %     grid = 'staggered';
-    %   else
-    %     keyboard
-    %   end;
-    %
-    %   switch method
-    %     case {'mbElastic','mbCurvature','mbHyperElastic'},
-    %       solver = 'backslash';
-    %     case 'mfElastic',
-    %       solver = 'MG-elastic';
-    %     case 'mfCurvature'
-    %       solver = 'PCG-curvature';
-    %     case 'mfHyperElastic'
-    %       solver = 'PCG-hyperElastic';
-    %     otherwise
-    %       keyboard
-    %   end;
-    %   matrixFree = strcmp(method(1:2),'mf');
-    %   fctn = method(3:end); fctn(1) = lower(fctn(1));
-    %   A = [];
-    %   switch fctn,
-    %     case {'TV'},
-    %       fprintf('tbi, TV is non-linear and a matrix based form cannot be provided\n');
-    %       error('use option ''TV'' instead')
-    %     case {'TV','hyperElastic','diffusionEPI','hyperEPI','elasticNodal'}
-    %       grid = 'nodal';
-    %     case {'elastic','elasticST','elasticSTcc','elasticSTinc'},
-    %       grid = 'staggered';
-    %     case {'curvature','TPS','tPS','diffusionST'},
-    %       grid = 'cell-centered';
-    %     case {'elasticFEM','hyperElasticFEM'},
-    %       grid = 'unstructured';
-    %     otherwise,
-    %       fprintf('\n\n---> %s <---\n\n',method)
-    %       error('nyi')
-    %   end;
     [dummy,OPTN] = dealOptions(OPTN,'set','scheme',scheme,...
         'grid',grid,'matrixFree',matrixFree,'solver',solver);
 end;

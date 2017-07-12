@@ -8,7 +8,7 @@
 %
 % function [Sc,dS,d2S] = diffusionST(vc,omega,m,varargin)
 %
-% computes spatio-temporal diffusion regularization energy for vc, where
+% Matrix-free spatio-temporal diffusion regularization energy for vc, where
 % vc is cell-centered
 %
 % S(v) = 0.5 * \int_{\omega} alpha(1)*v(x)'*A*v(x)+ alpha(2)*v(x)'*B*v(x) dx,
@@ -30,11 +30,9 @@
 %
 % Output:
 %
-%   Sc          current value  (0.5 * hd * vc'* A *vc + 0.5*dt*vc'*B*vc)
-%   dS          derivative     (hd * vc'*A )
-%   d2S         Hessian        A
-%  if ~matrixFree,  d2S is sparse matrix; else, d2S is struct; endif
-%
+%   Sc          current value   (0.5 * hd * vc'* A *vc + 0.5*dt*vc'*B*vc)
+%   dS          derivative      (hd * vc'*A )
+%   d2S         Hessian, struct A
 % ==================================================================================
 
 function [Sc,dS,d2S] = mfDiffusionST(vc,omega,m,varargin)
@@ -51,12 +49,6 @@ if strcmp(vc,'para')
 end
 
 
-persistent A omegaOld mOld alphaOld ntOld tspanOld
-
-if ~exist('mOld','var'),     mOld = [];     end;
-if ~exist('omegaOld','var'), omegaOld = []; end;
-if ~exist('alphaOld','var'), alphaOld = []; end;
-
 alpha       = [1 1e-3];
 tspan       = [0 1];
 nt          = [];
@@ -66,7 +58,7 @@ end;
 
 dim = numel(omega)/2;
 
-if isempty(nt), % roughly estimate nt
+if isempty(nt) % roughly estimate nt
     nt = round(numel(vc)/(prod(m)*dim))-1;
 end
 

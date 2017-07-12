@@ -8,9 +8,9 @@
 %
 % function [Sc,dS,d2S] = mfDiffusionCC(vc,omega,m,varargin)
 %
-% computes diffusion regularization energy for vc, where vc cell-centered
+% Matrix-free diffusion regularization energy for vc, where vc cell-centered
 %
-% S(u) = 0.5 * \int_{\omega} u(x)'*A'*A*u(x) dx,
+% S(v) = 0.5 * \int_{\omega} v(x)'*A'*A*v(x) dx,
 %
 % where A is the gradient operator with Neuman boundary conditions.
 %
@@ -24,10 +24,9 @@
 %
 % Output:
 %
-%   Sc          current value  (alpha*0.5 * hd * vc'* A'*A *vc)
-%   dS          derivative     (alpha*hd * vc'*A'*A )
-%   d2S   		Hessian        alpha*hd*A'*A
-%  if ~matrixFree,  d2S is sparse matrix; else, d2S is struct; endif
+%   Sc          current value   (alpha*0.5 * hd * vc'* A'*A *vc)
+%   dS          derivative      (alpha*hd * vc'*A'*A )
+%   d2S   		Hessian, struct alpha*hd*A'*A
 %
 % ==================================================================================
 

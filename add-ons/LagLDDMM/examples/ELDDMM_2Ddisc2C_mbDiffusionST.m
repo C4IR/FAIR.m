@@ -44,7 +44,7 @@ maxLevel = 7;
 omegaV = omega; omegaV(1:2:end) = omegaV(1:2:end)-pad;  omegaV(2:2:end) = omega(2:2:end)+pad;
 
 % 2) setup regularizer
-regularizer('reset','regularizer','mfDiffusionST','alpha',alpha,'nt',nt,'HessianShift',1e-2); % stationary velocity
+regularizer('reset','regularizer','mbDiffusionST','alpha',alpha,'nt',nt,'HessianShift',1e-2); % stationary velocity
 
 NPIRpara    = optPara('NPIR-GN');
 NPIRpara.maxIter = 40;
