@@ -54,6 +54,5 @@ debit = {
           'VAMPIREsolveGN_PCG.m'
           'contents.m'
           'README.md'
-          'LICENSE'
           'examples'
         };
