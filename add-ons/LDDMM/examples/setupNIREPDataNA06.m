@@ -1,6 +1,16 @@
-% ==================================================================================
-% (c) Andreas Mang 2016/09/23, see FAIR.2 and FAIRcopyright.m.
-% (http://www.mic.uni-luebeck.de/)
+% =========================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
+%
+% Setup NIREP problem (data needs to be obtained 
+% separately) 
+%
+% =========================================================================
+
 dataset='na06';
 example = ['3D-nirep-',dataset];
 checkSetupDataFile; if OK, return; end;
@@ -38,7 +48,13 @@ max(dataT(:))
 %omega = [0,m(1),0,m(2),0,m(3)];
 omega = [0,20,0,23.4375,0,20];
 ML = getMultilevel({dataT,dataR},omega,m,'fig',2);
-save(outfile,'dataT','dataR','dataTl','dataRl','omega','m','MLdata');
+save(outfile,'dataT','dataR','dataTl','dataRl','omega','m','ML');
 save(outfile,'-append','viewOptn','imgOptn','traOptn','disOptn','regOptn');
 checkSetupDataFile;
 
+% xc       = getCellCenteredGrid(omega,m);
+% viewData = @(I) viewImage(imgModel(I,omega,xc),omega,m);
+
+% FAIRfigure(1,'figname',mfilename); clf;
+% subplot(1,2,1); viewData(dataT); title('template');
+% subplot(1,2,2); viewData(dataR); title('reference');

@@ -1,11 +1,10 @@
 %==============================================================================
-% This code is part of the Matlab-based toolbox LagLDDDM - A Lagrangian Gauss--
-% Newton--Krylov Solver for Mass- and Intensity-Preserving Diffeomorphic Image
-% Registration
-%
-% For details and license info see
-% - https://github.com/C4IR/LagLDDMM%
-%==============================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function  [Jc,para,dJ,H] = LDDMMobjFctn(T,Rc,omega,m,beta,M,wRef,xc,vc)
 %
@@ -20,6 +19,15 @@
 % D(Tc,Rc) = distance(Tc,Rc,omega,m)
 % S        = regularizer, e.g., S(uc) = 0.5*uc'*B*uc
 % vRef     = reference guess for velocities
+%
+% For more details see the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % Input:
 %   T      - data for template image, Tc = imgModel(T,omega,yc)
@@ -132,11 +140,11 @@ setup2DGaussianData;
 lvl = 5;
 regularizer('reset','regularizer','mbElastic','alpha',1)
 v0 = getVelocityStartingGuess(omega,m);
-xc = getCellCenteredGrid(omega,MLdata{lvl}.m);
-T  = reshape(imgModel(MLdata{lvl}.T,omega,center(xc,MLdata{lvl}.m)),MLdata{lvl}.m);
-Rc = imgModel(MLdata{lvl}.R,omega,center(xc,MLdata{lvl}.m));
+xc = getCellCenteredGrid(omega,ML{lvl}.m);
+T  = reshape(imgModel(ML{lvl}.T,omega,center(xc,ML{lvl}.m)),ML{lvl}.m);
+Rc = imgModel(ML{lvl}.R,omega,center(xc,ML{lvl}.m));
 
-fctn = @(vc) LDDMMobjFctn(T,Rc,omega,MLdata{lvl}.m,v0,xc,omega,m,10,vc);
+fctn = @(vc) LDDMMobjFctn(T,Rc,omega,ML{lvl}.m,v0,xc,omega,m,10,vc);
 checkDerivative(fctn,v0)
 
 

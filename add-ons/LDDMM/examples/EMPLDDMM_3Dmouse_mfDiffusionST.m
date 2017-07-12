@@ -1,8 +1,20 @@
 % =========================================================================
-% ##1
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % 2D Multilevel Mass-Preserving LDDMM Example using stationary velocity
-% field and diffusion regularizer.
+% field and diffusion regularizer as described in Sec. 4 of the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % =========================================================================
 close all; clc; clear all;
@@ -20,7 +32,7 @@ imgModel('reset','imgModel','linearInterMex')
 omegaV = omega; omegaV(1:2:end) = omegaV(1:2:end)-pad;  omegaV(2:2:end) = omega(2:2:end)+pad;
 
 % 2) setup regularizer (and decide for stationary or nonstationary velocity)
-regularizer('reset','regularizer','mfDiffusionCC','alpha',alpha,'nt',nt,'HessianShift',1e-2); % nonstationary velocity
+regularizer('reset','regularizer','mfDiffusionST','alpha',alpha,'nt',nt,'HessianShift',1e-2); % nonstationary velocity
 
 %%
 plots = 0;

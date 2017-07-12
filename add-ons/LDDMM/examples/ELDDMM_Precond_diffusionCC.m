@@ -1,11 +1,21 @@
 % =========================================================================
-% ##1
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % Example illustrating the performance of different preconditioners for
 % the Gauss-Newton system in LDDMM. The example is described in detail in
 % Section 4.2 of the paper:
 %
-% ##2
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % =========================================================================
 clear all; clc;

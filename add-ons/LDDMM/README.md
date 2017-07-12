@@ -1,9 +1,9 @@
 # A Lagrangian Gauss–Newton–Krylov solver for mass- and intensity-preserving diffeomorphic image registration
-see https://github.com/C4IR/LagLDDMM.m for details and license issues.
+see https://github.com/C4IR/FAIR.m/add-ons/LagLDDMM for details and license issues.
     
 ## What is it? 
 
-This code adds new options for diffeomorphic registration to the [FAIR](https://github.com/C4IR/LagLDDMM.m) toolbox. The mathematical framework used here is based on the Large Deformation Diffeomorphic Metric Mapping (LDDMM) approach. What's making our approach special is the numerical realization (using a Lagrangian PDE solver to eliminate the constraint) and the flexibility (we support both intensity- and mass-preservation).
+This code adds new options for diffeomorphic registration to the [FAIR](https://github.com/C4IR/FAIR.m) toolbox. The mathematical framework used here is based on the Large Deformation Diffeomorphic Metric Mapping (LDDMM) approach. What's making our approach special is the numerical realization (using a Lagrangian PDE solver to eliminate the constraint) and the flexibility (we support both intensity- and mass-preservation).
 
 A solid documentation and reference is
 
@@ -15,6 +15,7 @@ A solid documentation and reference is
       Journal = {SIAM Journal on Scientific Computing},
       Author = {A. Mang, L. Ruthotto},
     }
+
 see also https://arxiv.org/abs/1703.04446 for a free preprint.
 
 ## Getting started

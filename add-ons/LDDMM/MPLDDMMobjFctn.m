@@ -1,11 +1,10 @@
 %==============================================================================
-% This code is part of the Matlab-based toolbox LagLDDDM - A Lagrangian Gauss--
-% Newton--Krylov Solver for Mass- and Intensity-Preserving Diffeomorphic Image
-% Registration
-%
-% For details and license info see
-% - https://github.com/C4IR/LagLDDMM%
-%==============================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function  [Jc,para,dJ,H] = MPLDDMMobjFctn(T,Rc,omega,m,beta,M,wRef,xc,vc)
 %
@@ -20,6 +19,15 @@
 % D(Tc,Rc) = distance(Tc,Rc,omega,m)
 % S        = regularizer, e.g., S(uc) = 0.5*uc'*B*uc
 % vRef     = reference guess for velocities
+%
+% For more details see the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % Input:
 %   T       particle mass

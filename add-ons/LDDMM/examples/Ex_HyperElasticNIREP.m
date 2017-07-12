@@ -1,3 +1,23 @@
+% =========================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
+%
+% 3D Hyperelastic registration of NIREP data to compare with LDDMM
+% as described in Sec. 4 of the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
+%
+% =========================================================================
+
 close all; clc; clear all;
 
 setupNIREPDataNA02;
@@ -43,7 +63,7 @@ filename = ['HyperElastic-',example,'-',regularizer,'-alpha-',num2str(alpha(1)),
 if (solve)
     diary(fullfile('results',[filename,'.log']));
     % finally: run the MultiLevel Non-Parametric Image Registration
-    [yc,wc,his] = MLIR(MLdata,'parametric',0,'NPIRLS',@ArmijoBacktrack,'minLevel',minLevel,'maxLevel',maxLevel,'maxIterNPIR',maxIterNPIR);
+    [yc,wc,his] = MLIR(ML,'parametric',0,'NPIRLS',@ArmijoBacktrack,'minLevel',minLevel,'maxLevel',maxLevel,'maxIterNPIR',maxIterNPIR);
     diary('off')
     [~,interOpts] = inter;
     [~,distOpts ] = distance;

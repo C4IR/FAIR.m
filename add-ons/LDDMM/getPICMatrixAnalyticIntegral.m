@@ -1,10 +1,17 @@
 %==============================================================================
-% ##1
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function [T,dT] = getPICMatrixAnalyticIntegral(omega,m,hp,xp,eps,varargin)
 %
-% Building push-forward matrix for aParticle-In-Cell method using anlytic
-% integration.
+% Building push-forward matrix for a Particle-In-Cell method using anlytic
+% integration. See also description in Sec. 3 of the paper:
+%
+%  ##2
 %
 %
 % Input:

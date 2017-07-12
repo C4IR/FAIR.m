@@ -1,11 +1,10 @@
 %==============================================================================
-% This code is part of the Matlab-based toolbox LagLDDDM - A Lagrangian Gauss--
-% Newton--Krylov Solver for Mass- and Intensity-Preserving Diffeomorphic Image
-% Registration
-%
-% For details and license info see
-% - https://github.com/C4IR/LagLDDMM%
-%==============================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function [Sc,dS,d2S] = curvatureST(uc,omega,m,varargin)
 %
@@ -108,7 +107,6 @@ end
 
 function D = sdiag(v)
 	D = diag(sparse(v(:)));
-end
 
 % matrix free implementation of spatio-temporal curvature operator
 function Ay = curvatureOperatorST(uc,omega,tspan,m,nt,alpha)

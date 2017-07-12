@@ -1,13 +1,12 @@
 %==============================================================================
-% This code is part of the Matlab-based toolbox LagLDDDM - A Lagrangian Gauss--
-% Newton--Krylov Solver for Mass- and Intensity-Preserving Diffeomorphic Image
-% Registration
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
-% For details and license info see
-% - https://github.com/C4IR/LagLDDMM%
-%==============================================================================
-%
-% function [vc,yc,wc,MLhis] = MLLDDMM(MLdata,varargin)
+% function [vc,yc,wc,MLhis] = MLLDDMM(ML,varargin)
 %
 % Multi-Level for Large Deformation Diffeomorphic Metric Mapping (LDDMM)
 %

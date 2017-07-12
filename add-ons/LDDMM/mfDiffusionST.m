@@ -1,11 +1,10 @@
 %==============================================================================
-% This code is part of the Matlab-based toolbox LagLDDDM - A Lagrangian Gauss--
-% Newton--Krylov Solver for Mass- and Intensity-Preserving Diffeomorphic Image
-% Registration
-%
-% For details and license info see
-% - https://github.com/C4IR/LagLDDMM%
-%==============================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function [Sc,dS,d2S] = diffusionST(vc,omega,m,varargin)
 %
@@ -107,7 +106,6 @@ B = [Bx;Bt];
 
 function D = sdiag(v)
 	D = diag(sparse(v(:)));
-end
 
 % get diagonal of d2S (interesting in matrix free mode)
 function D = diag(omega,tspan,m,nt,alpha)

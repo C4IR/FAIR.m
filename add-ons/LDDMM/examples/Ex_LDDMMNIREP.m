@@ -1,3 +1,22 @@
+% =========================================================================
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
+%
+% 3D intensity-preserving LDDMM for NIREP problem (data needs to be obtained 
+% separately) as described in Sec. 4 of the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
+%
+% =========================================================================
 close all; clc; clear all;
 
 setupNIREPDataNA02;
@@ -77,7 +96,7 @@ for j = 1:numel(shiftlist)
                 profile on;
             end
             diary(fullfile('results',[filename,'.log']));
-            [vc,yc,wc,his,para] = MLLDDMM(MLdata,'minLevel',minLevel,'maxLevel',maxLevel,'omegaV',omegaV,...
+            [vc,yc,wc,his,para] = MLLDDMM(ML,'minLevel',minLevel,'maxLevel',maxLevel,'omegaV',omegaV,...
                 'mV',mV,'N',N,'parametric',0,'maxIterNPIR',maxIterNPIR,'tolJ',tolJ,'solverNPIR',[],'fig',0);
             diary('off')
 
@@ -93,11 +112,11 @@ for j = 1:numel(shiftlist)
             if (nt ~= ntt), error('nt is wrong'); end
             xc = getCellCenteredGrid(omega,m);
             if nt < 1
-                yc = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',N,'tspan',[1 0]);
-                yInv = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',N,'tspan',[0 1]);
+                yc = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',N,'tspan',[1 0]);
+                yInv = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',N,'tspan',[0 1]);
             else
-                yc = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',N,'nt',nt,'tspan',[1 0]);
-                yInv = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',N,'nt',nt,'tspan',[0 1]);
+                yc = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',N,'nt',nt,'tspan',[1 0]);
+                yInv = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',N,'nt',nt,'tspan',[0 1]);
             end
             save(fullfile('results',[filename,'.mat']),'vc','yc',...
                 'wc','his','mV','minLevel','maxLevel','para','interOpts','distOpts','regOpts','N','yInv')
@@ -111,11 +130,11 @@ for j = 1:numel(shiftlist)
 
             xc = getCellCenteredGrid(omega,m);
             if nt < 1
-                yc = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',ntpost,'tspan',[1 0]);
-                yInv = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',ntpost,'tspan',[0 1]);
+                yc = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',ntpost,'tspan',[1 0]);
+                yInv = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',ntpost,'tspan',[0 1]);
             else
-                yc = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',ntpost,'nt',nt,'tspan',[1 0]);
-                yInv = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(MLdata{maxLevel}.m),'N',ntpost,'nt',nt,'tspan',[0 1]);
+                yc = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',ntpost,'nt',nt,'tspan',[1 0]);
+                yInv = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,'m',mV(ML{maxLevel}.m),'N',ntpost,'nt',nt,'tspan',[0 1]);
             end
 
             computeOverlap;

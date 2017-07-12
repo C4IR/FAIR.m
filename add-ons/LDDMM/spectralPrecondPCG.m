@@ -1,9 +1,22 @@
 %==============================================================================
-% ##1
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function [dy,iter,relres,resvec] = spectralPrecondPCG(rhs, H, maxIterCG, tolCG,varargin)
 %
-% PCG with spectral preconditioner for the Gauss-Newton system in (MP)LDDMM
+% PCG with spectral preconditioner for the Gauss-Newton system in (MP)LDDMM as described 
+% in the paper
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % Input: 
 %

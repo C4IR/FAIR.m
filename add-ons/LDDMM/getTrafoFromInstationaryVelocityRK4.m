@@ -1,5 +1,10 @@
 %==============================================================================
-% ##1
+% This code is part of the Matlab-based toolbox 
+% LagLDDDM - A Lagrangian Gauss--Newton--Krylov Solver for Mass- and 
+%                        Intensity-Preserving Diffeomorphic Image Registration
+% 
+% For details and license info see 
+% - https://github.com/C4IR/FAIR.m/tree/master/add-ons/LagLDDMM
 %
 % function [yc,dy,para] = getTrafoFromInstationaryVelocityRK4(vc,yc,varargin)
 %
@@ -7,6 +12,15 @@
 % Runge-Kutta 4 method with fixed time steps. Velocity is time dependent
 % here and assumed to be nodal in time. For stationary velocities, use 
 % getTrafoFromVelocityRK4.m
+%
+% For more details see Sec. 3 of the paper:
+%
+% @article{MangRuthotto2017,
+%   Title = {A {L}agrangian {G}auss--{N}ewton--{K}rylov solver for mass- and intensity-preserving diffeomorphic image registration},
+%   Year = {2017},
+%   Journal = {SIAM Journal on Scientific Computing},
+%   Author = {A. Mang, L. Ruthotto},
+% }
 %
 % Input:
 %  vc   - discrete velocity field (nodal, cell-centered, or staggered in space / nodal in time)
