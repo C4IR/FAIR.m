@@ -121,18 +121,25 @@ if not(regularizer('get','matrixFree')),
     H  = dr'*d2psi*dr + d2S;
 else
     % derivatives rather explicit
-    dr = dres*dT;
-    dD = dD*dT;
-    dJ = reshape(Mesh.mfPi(reshape(dD',[],Mesh.dim),'C'),1,[]) + dS;
+    %P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
+    %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;
+    P = kron(speye(dim),Mesh.PC);
+    dTcmod = sdiag(det)*dT*P + sdiag(Tc)*dDet;
+    dr = dres*dTcmod;
+    dD = dD*dTcmod;
+    dJ = dD + dS;
     
     % approximation to d2D in matrix free mode
     % d2D   = P'*dr'*d2psi*dr*P
     % P and P' are operators matrix free
-    H.Mesh     = Mesh;
+    H.Mesh      = Mesh;
+    H.omega     = omega;
+    H.m         = m;
     H.d2D.how   = 'P''*dr''*d2psi*dr*P';
-    H.d2D.P     = @(x) Mesh.mfPi(reshape(x(:),[],Mesh.dim),'C');
+    H.d2D.P     = @(x) x;%reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
     H.d2D.dr    = dr;
     H.d2D.d2psi = d2psi;
+    H.solver    = d2S.solver;
     
     H.d2S = d2S;
 end;
