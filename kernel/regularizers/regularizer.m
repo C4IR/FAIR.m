@@ -10,7 +10,7 @@
 %
 % Main function for the regularization model, uses persistent parameter
 %
-% The regularization functional is either based on a linear differential 
+% The regularization functional is either based on a linear differential
 % operator B, i.e.
 %
 %        S(Y) = 0.5*alpha*hd*|B*Y|^2
@@ -31,7 +31,7 @@
 %  A = alpha*hd*B'*B is made persistent for eficiency
 %  hd = prod(omega./m)
 %  an option grid is introduce to indicate the appropriate discretization:
-%  staggered for elastic and diffusive, 
+%  staggered for elastic and diffusive,
 %  cell-centered for curvature
 %  nodal for TV, hyper elastic or diffusive EPI regularization
 %==============================================================================
@@ -41,8 +41,8 @@ function varargout = regularizer(varargin)
 persistent OPTN A
 
 if nargin == 0 && nargout == 0 && isempty(OPTN),
-  help(mfilename);
-  return;
+    help(mfilename);
+    return;
 end;
 
 % -----------------------------------------------------------------------------
@@ -54,133 +54,82 @@ end;
 % setup default solver for Gauss-Newton systems
 
 if strcmp(task,'set') || strcmp(task,'reset'),
-  
-  switch method,
-    case 'mfElastic',
-      scheme     = 'elastic';
-      matrixFree = 1;
-      grid       = 'staggered';
-      solver     = 'MG-elastic';
+    switch method,
+        case 'mfElastic',
+            scheme     = 'elastic';
+            matrixFree = 1;
+            grid       = 'staggered';
+            solver     = 'MG-elastic';
+            
+        case 'mbElastic',
+            scheme     = 'elastic';
+            matrixFree = 0;
+            grid       = 'staggered';
+            solver     = 'backslash';
+            
+        case 'mbElasticNodal',
+            scheme     = 'elasticNodal';
+            matrixFree = 0;
+            grid       = 'nodal';
+            solver     = 'backslash';
+            
+        case 'mbCurvature',
+            scheme     = 'curvature';
+            matrixFree = 0;
+            grid       = 'cell-centered';
+            solver     = 'backslash';
+            
+        case 'mfCurvature',
+            scheme     = 'curvature';
+            matrixFree = 1;
+            grid       = 'cell-centered';
+            solver     = 'PCG-curvature';
+            
+        case 'mbHyperElastic',
+            scheme     = 'hyperElastic';
+            matrixFree = 0;
+            grid       = 'nodal';
+            solver     = 'backslash';
+            
+            
+        case 'mfHyperElastic',
+            scheme     = 'hyperElastic';
+            matrixFree = 1;
+            grid       = 'nodal';
+            solver     = 'PCG-hyperElastic';
+            
+        case 'mbHyperElasticFEM',
+            scheme     = 'hyperElasticFEM';
+            matrixFree = 0;
+            grid       = 'FEM';
+            solver     = 'backslash';
+            
+        case 'mfHyperElasticFEM',
+            scheme     = 'hyperElasticFEM';
+            matrixFree = 1;
+            grid       = 'FEM';
+            solver     = 'PCG-hyperElastic';
 
-    case 'mbElastic',
-      scheme     = 'elastic';
-      matrixFree = 0;
-      grid       = 'staggered';
-      solver     = 'backslash';
-
-    case 'mbElasticNodal',
-      scheme     = 'elasticNodal';
-      matrixFree = 0;
-      grid       = 'nodal';
-      solver     = 'backslash';
-
-    case 'mbCurvature',
-      scheme     = 'curvature';
-      matrixFree = 0;
-      grid       = 'cell-centered';
-      solver     = 'backslash';
-      
-    case 'mfCurvature',
-      scheme     = 'curvature';
-      matrixFree = 1;
-      grid       = 'cell-centered';
-      solver     = 'PCG-curvature';
-
-    case 'mbHyperElastic',
-      scheme     = 'hyperElastic';
-      matrixFree = 0;
-      grid       = 'nodal';
-      solver     = 'backslash';
-
-
-    case 'mfHyperElastic',
-      scheme     = 'hyperElastic';
-      matrixFree = 1;
-      grid       = 'nodal';
-      solver     = 'PCG-hyperElastic';
-      
-    case 'mbHyperElasticFEM',
-      scheme     = 'hyperElasticFEM';
-      matrixFree = 0;
-      grid       = 'FEM';
-      solver     = 'backslash';
-
-    case 'mbElasticFEM',
-      scheme     = 'elasticFEM';
-      matrixFree = 0;
-      grid       = 'FEM';
-      solver     = 'backslash';
-      
-   case 'mfHyperElasticFEM',
-      scheme     = 'hyperElasticFEM';
-      matrixFree = 1;
-      grid       = 'FEM';
-      solver     = 'PCG-hyperElastic';
-
-    otherwise,
-      error(mfilename)
-  end;
-  
-%   MF = {'mfElastic','mfCurvature','mfCurvatureMex','mfHyperElastic'};
-%   MB = {'mbElastic','mbHyperElastic'};
-%   
-%   mf =  any(strcmp(method,MF));
-%   mb =  any(strcmp(method,MB));
-%   
-%   NO  = {'mbHyperElastic','mfHyperElastic'};
-%   CC  = {'mbCurvature','mfCurvature'};
-%   STG = {'mbElastic','mfElastic'};
-%   
-%   if any(strcmp(method,NO))
-%     grid = 'nodal'
-%   elseif any(strcmp(method,CC))
-%     grid = 'cell-centered';
-%   elseif any(strcmp(method,STG))
-%     grid = 'staggered';
-%   else
-%     keyboard
-%   end;
-%   
-%   switch method
-%     case {'mbElastic','mbCurvature','mbHyperElastic'},
-%       solver = 'backslash';
-%     case 'mfElastic',
-%       solver = 'MG-elastic';
-%     case 'mfCurvature'
-%       solver = 'PCG-curvature';
-%     case 'mfHyperElastic'
-%       solver = 'PCG-hyperElastic';
-%     otherwise
-%       keyboard
-%   end;
-%   matrixFree = strcmp(method(1:2),'mf');
-%   fctn = method(3:end); fctn(1) = lower(fctn(1));
-%   A = [];
-%   switch fctn,
-%     case {'TV'},
-%       fprintf('tbi, TV is non-linear and a matrix based form cannot be provided\n');
-%       error('use option ''TV'' instead')
-%     case {'TV','hyperElastic','diffusionEPI','hyperEPI','elasticNodal'}
-%       grid = 'nodal';
-%     case {'elastic','elasticST','elasticSTcc','elasticSTinc'},
-%       grid = 'staggered';
-%     case {'curvature','TPS','tPS','diffusionST'},
-%       grid = 'cell-centered';
-%     case {'elasticFEM','hyperElasticFEM'},
-%       grid = 'unstructured';
-%     otherwise,
-%       fprintf('\n\n---> %s <---\n\n',method)
-%       error('nyi')
-%   end;
-  [dummy,OPTN] = dealOptions(OPTN,'set','scheme',scheme,...
-    'grid',grid,'matrixFree',matrixFree,'solver',solver);
+        case 'mbElasticFEM',
+            scheme     = 'elasticFEM';
+            matrixFree = 0;
+            grid       = 'FEM';
+            solver     = 'backslash';
+            
+        otherwise
+            scheme = method;
+            [grid,matrixFree,solver] = feval(scheme,'para',[],[],OPTN{:});
+    end;
+    
+    [dummy,OPTN] = dealOptions(OPTN,'set','scheme',scheme,...
+        'grid',grid,'matrixFree',matrixFree,'solver',solver);
 end;
 
 % return, if no further work has to be handled
 if stop,
-  varargout{1} = method;
-  if nargout > 1, varargout{2} = OPTN;  varargout{3} = A;  end;
-  return;
+    varargout{1} = method;
+    if nargout > 1, varargout{2} = OPTN;  varargout{3} = A;  end;
+    return;
 end
 % -----------------------------------------------------------------------------
 % do the work
@@ -198,7 +147,7 @@ doDerivative = (nargout>1);
 varargin = varargin(4:end);
 
 for k=1:2:length(varargin), % overwrites defaults
-  eval([varargin{k},'=varargin{',int2str(k+1),'};']);
+    eval([varargin{k},'=varargin{',int2str(k+1),'};']);
 end;
 [Sc,dS,d2S] = feval(scheme,yc,omega,m,...
     'alpha',alpha,'matrixFree',matrixFree,...
