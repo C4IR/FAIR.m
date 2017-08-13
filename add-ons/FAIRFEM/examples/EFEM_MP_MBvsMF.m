@@ -2,9 +2,10 @@
 % (c) Lars Ruthotto 2012/07/26, see FAIR.2 and FAIRcopyright.m.
 % http://www.mic.uni-luebeck.de/people/lars-ruthotto.html
 %
-% Simplified Registration of Cardiac PET
+% Verification code for matrixfree implementation
 %
-% data Gaussian Blobs
+% 'relerr' shows the relative difference between matrixfree and matrix
+% based implementations
 %
 % ==================================================================================
 close all; clc; clear;
@@ -27,7 +28,8 @@ NPIRpara.solver     = 'mbPCG-Jacobi';
       'minLevel',minLevel,'maxLevel',maxLevel);
 
 regularizer('reset','regularizer','mfHyperElasticFEM','alpha',5e1);
-NPIRpara.solver = 'PCG-hyperElastic';
+NPIRpara.solver = @FEMPIREsolveGN_PCG;%'PCG-hyperElastic';
+
 [yMP_MF,~,hisMP_MF] = MLIRFEM(ML,'parametric',0,...
     'NPIRobj',@FEMPIREobjFctn,'NPIRpara',NPIRpara,...
     'minLevel',minLevel,'maxLevel',maxLevel);

@@ -75,6 +75,7 @@ m     = Mesh.m;
 yc = reshape(yc,[],dim);
 yRef = reshape(yRef,[],dim);
 doDerivative = (nargout>2);            % flag for necessity of derivatives
+matrixFree = regularizer('get','matrixFree');
 % do the work ------------------------------------------------------------
 
 % define barycentric interpolation
@@ -83,7 +84,7 @@ doDerivative = (nargout>2);            % flag for necessity of derivatives
 vol = Mesh.vol;
 
 % compute interpolated image and derivative
-[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative);
+[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative,'matrixFree',matrixFree);
 % apply intensity modulation
 [det,dDet]  = getDeterminant(Mesh,yc,'doDerivative',doDerivative);
 Tcmod   = Tc .* det;
@@ -122,11 +123,10 @@ if not(regularizer('get','matrixFree')),
 else
     % derivatives rather explicit
     %P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
-    %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;
-    P = kron(speye(dim),Mesh.PC);
-    dTcmod = sdiag(det)*dT*P + sdiag(Tc)*dDet;
-    dr = dres*dTcmod;
-    dD = dD*dTcmod;
+    %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;    
+    p = vecXmat(dD,det,dT);
+    dD = reshape(Mesh.mfPi(p,'C'),1,[]) + (dDet.dDetadj(dD'.*Tc))';
+    
     dJ = dD + dS;
     
     % approximation to d2D in matrix free mode
@@ -136,20 +136,78 @@ else
     H.omega     = omega;
     H.m         = m;
     H.d2D.how   = 'P''*dr''*d2psi*dr*P';
-    H.d2D.P     = @(x) x;%reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
-    H.d2D.dr    = dr;
+    H.d2D.P     = @(x) reshape(Mesh.mfPi(x,'C'),[],1);
+    H.d2D.Tc    = Tc;
+    H.d2D.dT    = dT;
+    H.d2D.Jac   = det;
+    H.d2D.dJac  = dDet.dDet;
+    H.d2D.dJacadj = dDet.dDetadj;
+    H.d2D.diag  = @(Mesh,yc) getDiag(Mesh,det,Tc,dT,yc);
+    H.d2D.dres  = dres;
     H.d2D.d2psi = d2psi;
     H.solver    = d2S.solver;
     
     H.d2S = d2S;
 end;
 
+function p = vecXmat(dD,Jac,dT)
+% implementation of vector' * matrix product dD * [Jac] * dT
+
+[len,dim] = size(dT);
+p   = zeros(len,dim);
+for d=1:dim,
+    p(:,d) = dD(:).*Jac(:).*dT(:,d);
+end
 
 
 % shortcut for sparse diagonal matrix
 function A = sdiag(v)
 A = spdiags(v(:),0,numel(v),numel(v));
 
+% diagonal of hessian matrix
+% sum(sdiag(vol)dTcmod.^2,1)
+% where dTcmod = sdiag(det)*dT*P + sdiag(Tc)*dDet;
+% implemention:  sum(sdiag(vol)*(sdiag(det)*dT*P(.^2 +
+% sdiag(vol)*(sdiag(Tc)*dDet).^2,1)
+function D = getDiag(Mesh,det,Tc,dT,yc)
+
+vol = Mesh.vol;
+
+% first term
+D1 = [(Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,3)) ;...
+    (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,3))];
+
+% second term
+
+xn = Mesh.xn;
+% get edges
+e1 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,3);
+e2 =  Mesh.mfPi(xn,2) - Mesh.mfPi(xn,3);
+e3 =  Mesh.mfPi(xn,1) - Mesh.mfPi(xn,2);
+
+% compute gradients of basis functions
+dphi1 =   ([ e2(:,2) -e2(:,1)]./[2*vol,2*vol]);
+dphi2 =   ([-e1(:,2)  e1(:,1)]./[2*vol,2*vol]);
+dphi3 =   ([ e3(:,2) -e3(:,1)]./[2*vol,2*vol]);
+
+% compute diagonal of volume regularizer
+% MB : dDet = [sdiag(By(:,4)), sdiag(-By(:,3)) , sdiag(-By(:,2)), sdiag(By(:,1))] * B;
+[dx1, dx2] = getGradientMatrixFEM(Mesh,1);
+yc = reshape(yc,[],2);
+By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
+
+% get boundaries
+Dxi = @(i,j) Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi1(:,i)).^2,1) ... 
+    + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi2(:,i)).^2,2) ...
+    + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi3(:,i)).^2,3); % diagonal of Dxi'*Dxi 
+
+Dxy = @(i,j,k,l) Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi1(:,i)).*(Tc.*By(:,l).*dphi1(:,k)),1) ... % byproduct terms for verifications
+    + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi2(:,i)).*(Tc.*By(:,l).*dphi2(:,k)),2) ...
+    + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi3(:,i)).*(Tc.*By(:,l).*dphi3(:,k)),3); % diagonal of Dxi'*Dxi 
+
+D2 = [Dxi(1,4)+ Dxi(2,3) - 2*Dxy(1,4,2,3) ;Dxi(1,2)+ Dxi(2,1) - 2*Dxy(1,2,2,1)];
+
+D = D1 + D2;
 
 
 function runMinimalExample

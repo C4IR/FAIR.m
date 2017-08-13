@@ -28,27 +28,50 @@ for k=1:2:length(varargin),     % overwrites default parameter
     eval([varargin{k},'=varargin{',int2str(k+1),'};']);
 end;
 
+matrixFree = regularizer('get','matrixFree');
 dim = Mesh.dim;
 yc = reshape(yc,[],dim);
 
 switch dim
     case 2
-        dx1 = Mesh.dx1; dx2 = Mesh.dx2;
         
-        D1y = dx1*yc;
-        D2y = dx2*yc;
-        % compute volume
-        det = D1y(:,1).*D2y(:,2) - D2y(:,1).*D1y(:,2);
-        if doDerivative,
-            w = [D2y(:,2), D1y(:,2), D1y(:,1), D2y(:,1)];
+        if ~matrixFree
             
-            dDet =[
-                sdiag(w(:,1))*(dx1) ...
-                - sdiag(w(:,2))*(dx2),...
-                sdiag(w(:,3))*(dx2) ...
-                - sdiag(w(:,4))*(dx1)
-                ];
+            dx1 = Mesh.dx1; dx2 = Mesh.dx2;
+
+            D1y = dx1*yc;
+            D2y = dx2*yc;
+            % compute volume
+            det = D1y(:,1).*D2y(:,2) - D2y(:,1).*D1y(:,2);
+        
+            if doDerivative,
+
+            
+                w = [D2y(:,2), D1y(:,2), D1y(:,1), D2y(:,1)];
+
+                dDet =[
+                    sdiag(w(:,1))*(dx1) ...
+                    - sdiag(w(:,2))*(dx2),...
+                    sdiag(w(:,3))*(dx2) ...
+                    - sdiag(w(:,4))*(dx1)
+                    ];
+                
+            end
+        
+        else
+            
+            dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;
+            By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
+            det = By(:,1).*By(:,4) - By(:,3) .* By(:,2);
+            
+            dDet.dDet = @(x) By(:,4).*dx1.D(x(:,1)) - By(:,3).*dx2.D(x(:,1)) + By(:,1).*dx2.D(x(:,2)) - By(:,2).*dx1.D(x(:,2));
+            
+            dDet.dDetadj  = @(x) [ ...
+                dx1.Dadj(By(:,4).*x)-dx2.Dadj(By(:,3).*x);...
+                -dx1.Dadj(By(:,2).*x)+dx2.Dadj(By(:,1).*x)]; 
+            
         end
+   
     case 3
         % compute derivative
         GRAD = Mesh.GRAD;
