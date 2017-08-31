@@ -124,7 +124,7 @@ else
     % derivatives rather explicit
     %P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
     %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;    
-    p = vecXmat(dD,det,dT);
+    p = (dD(:).*det).*dT;
     dD = reshape(Mesh.mfPi(p,'C'),1,[]) + (dDet.dDetadj(dD'.*Tc))';
     
     dJ = dD + dS;
@@ -149,15 +149,6 @@ else
     
     H.d2S = d2S;
 end;
-
-function p = vecXmat(dD,Jac,dT)
-% implementation of vector' * matrix product dD * [Jac] * dT
-
-[len,dim] = size(dT);
-p   = zeros(len,dim);
-for d=1:dim,
-    p(:,d) = dD(:).*Jac(:).*dT(:,d);
-end
 
 
 % shortcut for sparse diagonal matrix
