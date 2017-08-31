@@ -165,8 +165,7 @@ function D = getDiag(Mesh,det,Tc,dT,yc)
 vol = Mesh.vol;
 
 % first term
-D1 = [(Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,3)) ;...
-    (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,3))];
+D1 = Mesh.mfPi(vol.*(det.*dT).^2,'C');
 
 % second term
 
