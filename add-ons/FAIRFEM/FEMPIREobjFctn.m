@@ -124,7 +124,7 @@ else
     % derivatives rather explicit
     %P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
     %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;    
-    p = vecXmat(dD,det,dT);
+    p = (dD(:).*det).*dT;
     dD = reshape(Mesh.mfPi(p,'C'),1,[]) + (dDet.dDetadj(dD'.*Tc))';
     
     dJ = dD + dS;
@@ -150,15 +150,6 @@ else
     H.d2S = d2S;
 end;
 
-function p = vecXmat(dD,Jac,dT)
-% implementation of vector' * matrix product dD * [Jac] * dT
-
-[len,dim] = size(dT);
-p   = zeros(len,dim);
-for d=1:dim,
-    p(:,d) = dD(:).*Jac(:).*dT(:,d);
-end
-
 
 % shortcut for sparse diagonal matrix
 function A = sdiag(v)
@@ -174,8 +165,7 @@ function D = getDiag(Mesh,det,Tc,dT,yc)
 vol = Mesh.vol;
 
 % first term
-D1 = [(Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).^2,3)) ;...
-    (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,1)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,2)) + (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).^2,3))];
+D1 = Mesh.mfPi(vol.*(det.*dT).^2,'C');
 
 % second term
 
