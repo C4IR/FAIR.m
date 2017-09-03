@@ -155,15 +155,17 @@ else % matrix-free
     d2S.alpha       = alpha;
     d2S.yc          = yc;
     d2S.solver      = 'PCG-hyperElastic';%@FEMMultiGridSolveHyper;
+    
     % code only diffusion part for B
     d2S.By     = @(u,Mesh) Mesh.mfGRAD.D(u);
     d2S.BTy    = @(u,Mesh) Mesh.mfGRAD.Dadj(u);
     d2S.B      = @(Mesh)   Mesh.GRAD;
+    
     % give seperate handles for diagonals of length, area and volume
     d2S.diagLength   = @(Mesh) getDiagLength(Mesh,alphaLength);
     d2S.diagArea     = [];%@(Mesh) getDiagArea(Mesh,alphaLength);
     d2S.diagVol      = @(Mesh) getDiagVolume(Mesh,yc,alphaVolume);
-    d2S.diag   = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
+    d2S.diag         = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
     
     d2S.d2S  = @(uc,omega,m,yc) ...
         alphaLength *  ...

@@ -6,7 +6,10 @@
 %
 % ==================================================================================
 close all; clc; clear;
-setup3DmiceData; level = 4;
+%setup3DmiceData; 
+setup3DmouseData;
+
+level = 3;
 omega = ML{level}.omega; m = ML{level}.m;
 
 viewImage('reset','viewImage','imgmontage','colormap','gray');
@@ -24,6 +27,6 @@ fctn([]);
 FAIRplotsFEM('reset','mode','FEM','fig',level,'plots',1);
 FAIRplotsFEM('init',struct('Tc',T,'Rc',R,'Mesh',Mesh));
 
-yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver','pcg');
+yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver','mbPCG-Jacobi');
 
-showResults(ML,yc,'level',level);
+%showResults(ML,yc,'level',level);

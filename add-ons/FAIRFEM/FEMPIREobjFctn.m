@@ -166,6 +166,7 @@ vol = Mesh.vol;
 
 % first term
 D1 = Mesh.mfPi(vol.*(det.*dT).^2,'C');
+D1 = D1(:)./3;
 
 % second term
 
