@@ -30,7 +30,8 @@ dTcmod =    @(x) vecmatprod1(Jac,dT,H.d2D.P(reshape(x,[],dim))) + Tc .* dJac(res
 dTcmodadj = @(x) H.d2D.P(vecmatprod1adj(dT,Jac,x)) + dJacadj(Tc.*x);
 
 M         = @(x) dTcmodadj(dres'*H.d2D.d2psi*(dres * dTcmod(x)));
-Hoperator = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%Hoperator = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+Hoperator = @(x) M(x) + H.d2S.d2S(x);
 
 D         = H.d2D.diag(Mesh,yc)  +  H.d2S.diag(H.d2S.yc);
 Preconditioner = @(x) D.\x; % Jacobi preconditioner

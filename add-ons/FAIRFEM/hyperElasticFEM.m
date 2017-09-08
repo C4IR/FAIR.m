@@ -79,7 +79,7 @@ if not(matrixFree), % matrix-based
     % =====================================================================
     % area regularization
     if dim==3,
-        [cof, dCof] = cofactor3D(By,Mesh,doDerivative);
+        [cof, dCof] = cofactor3D(By,Mesh,doDerivative,matrixFree);
         % compute areas
         area = [
             sum(cof(:,[1 4 7]).^2,2);
@@ -167,70 +167,201 @@ else % matrix-free
     d2S.diagVol      = @(Mesh) getDiagVolume(Mesh,yc,alphaVolume);
     d2S.diag         = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
     
-    d2S.d2S  = @(uc,omega,m,yc) ...
-        alphaLength *  ...
-        d2S.BTy(repmat(Mesh.vol,[dim^2,1]).*d2S.By(uc,Mesh),Mesh) ...   
-        + alphaVolume *  ...
-        volumeOperator(yc,Mesh,uc, Mesh.vol);
-    
     % length regularizer
     dSlength = transpose( alphaLength* d2S.BTy(repmat(Mesh.vol,[dim^2,1]).*d2S.By(uc,Mesh),Mesh) );
     Slength  = .5*dSlength*uc;
     
-    % volume term
-    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;
-    yc = reshape(yc,[],2);
-    By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
-    det = By(:,1).*By(:,4) - By(:,3) .* By(:,2);
-    [G,dG,d2G] = psi(det,doDerivative);
-    Svol = alphaVolume*sum(Mesh.vol.*G);
-    Sc = Slength + Svol;
+    if doDerivative
+        d2Slength = @(uc) alphaLength * d2S.BTy(repmat(Mesh.vol,[dim^2,1]).*d2S.By(uc,Mesh),Mesh);
+    end
+    
+    % area regularizer
+    if dim==3
+        yc = reshape(yc,[],dim);
+        [cof, dCof] = cofactor3D([],Mesh,doDerivative,matrixFree);
+        % compute areas
+        area = [
+                cof{1}(yc).^2+cof{4}(yc).^2+cof{7}(yc).^2;
+                cof{2}(yc).^2+cof{5}(yc).^2+cof{8}(yc).^2;
+                cof{3}(yc).^2+cof{6}(yc).^2+cof{9}(yc).^2;
+                ];    
+        % compute penalty
+        [H,dH,d2H] = phiDW(area,doDerivative);
+        % compute area regularizer
+        Sarea   = alphaArea * repmat(vol,[3 1])'*H;
+        
+        if doDerivative
+            dH = reshape(dH,[],3);
+            d2H = reshape(d2H,[],3);
+            dAadj = @(x,i) 2*(dCof.dCofadj{i}(x.*cof{i}(yc),yc) + dCof.dCofadj{i+3}(x.*cof{i+3}(yc),yc) + dCof.dCofadj{i+6}(x.*cof{i+6}(yc),yc));
+            dSarea = zeros(1,Mesh.nnodes*dim);
+            for i=1:3          
+               dSarea  = dSarea +   alphaArea*dAadj(vol.*dH(:,i),i)';
+            end
+            
+            dA = @(x,i) 2*(cof{i}(yc).*dCof.dCof{i}(x,yc) + cof{i+3}(yc).*dCof.dCof{i+3}(x,yc) + cof{i+6}(yc).*dCof.dCof{i+6}(x,yc));
+            d2Sarea = @(x) dAadj(alphaArea*vol.*d2H(:,1).*dA(reshape(x,[],3),1),1) + dAadj(alphaArea*vol.*d2H(:,2).*dA(reshape(x,[],3),2),2) + dAadj(alphaArea*vol.*d2H(:,3).*dA(reshape(x,[],3),3),3);
+            
+        end
+        
+    else
+        Sarea = 0;
+        dSarea = 0;
+        d2Sarea = 0;
+    end
+    
+    % volume regularizer
+    if dim==2
+        % volume term
+        dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;
+        yc = reshape(yc,[],2);
+        By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
+        det = By(:,1).*By(:,4) - By(:,3) .* By(:,2);
+        [G,dG,d2G] = psi(det,doDerivative);
+        Svolume = alphaVolume*sum(Mesh.vol.*G);
+    
+        if doDerivative
+            
+            dDet  = @(x)   By(:,4).*dx1.D(x(:,1))- By(:,3).*dx2.D(x(:,1))...
+                                -By(:,2).*dx1.D(x(:,2))+By(:,1).*dx2.D(x(:,2));
+
+            dDetadj = @(x) [ ...
+                             dx1.Dadj(By(:,4).*x)-dx2.Dadj(By(:,3).*x);...
+                            -dx1.Dadj(By(:,2).*x)+dx2.Dadj(By(:,1).*x)]; 
+                        
+            dSvolume = alphaVolume * transpose(dDetadj(dG.*Mesh.vol));
+            
+            d2Svolume = @(x) dDetadj(vol.*d2G.*dDet(reshape(x,[],2)));
+            
+        end
+        
+    else
+        dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2; dx3 = Mesh.mfdx3;
+        det = dx1.D(yc(:,1)).*cof{1}(yc) + dx2.D(yc(:,1)).*cof{2}(yc) + dx3.D(yc(:,1)).*cof{3}(yc);
+        [G,dG,d2G] = psi(det,doDerivative);
+        Svolume = alphaVolume*sum(Mesh.vol.*G);
+        
+        if doDerivative
+            
+            dDet = @(x)  cof{1}(yc).*dx1.D(x(:,1)) + cof{2}(yc).*dx2.D(x(:,1)) + cof{3}(yc).*dx3.D(x(:,1)) +...
+                                  cof{4}(yc).*dx1.D(x(:,2)) + cof{5}(yc).*dx2.D(x(:,2)) + cof{6}(yc).*dx3.D(x(:,2)) +...
+                                  cof{7}(yc).*dx1.D(x(:,3)) + cof{8}(yc).*dx2.D(x(:,3)) + cof{9}(yc).*dx3.D(x(:,3));
+                              
+            dDetadj = @(x) [ ...
+                                 dx1.Dadj(cof{1}(yc).*x) + dx2.Dadj(cof{2}(yc).*x) + dx3.Dadj(cof{3}(yc).*x);...
+                                 dx1.Dadj(cof{4}(yc).*x) + dx2.Dadj(cof{5}(yc).*x) + dx3.Dadj(cof{6}(yc).*x);...
+                                 dx1.Dadj(cof{7}(yc).*x) + dx2.Dadj(cof{8}(yc).*x) + dx3.Dadj(cof{9}(yc).*x)
+                                 ]; 
+            
+            dSvolume = alphaVolume * transpose(dDetadj(dG.*Mesh.vol));
+            
+            d2Svolume = @(x) alphaVolume * dDetadj(vol.*d2G.*dDet(reshape(x,[],3)));
+            
+        end
+        
+    end  
+    Sc = Slength +Sarea + Svolume;
     
     if doDerivative
-        dDet  = @(x) [ ...
-            dx1.Dadj(By(:,4).*x)-dx2.Dadj(By(:,3).*x);...
-           -dx1.Dadj(By(:,2).*x)+dx2.Dadj(By(:,1).*x)]; 
-        dSvol = alphaVolume * transpose(dDet(dG.*Mesh.vol)  );
+        if dim==3
+            dS  = dSlength  + dSarea + dSvolume;
+            d2S.d2S = @(x) d2Slength(x)  + d2Sarea(x) + d2Svolume(x);
+        elseif dim==2
+            dS = dSlength + dSvolume;
+            d2S.d2S  = @(x) d2Slength(x) + d2Svolume(x);
+        end
+    end
+    
+    
+end
 
-        dS = dSlength + dSvol;
+function [cof,dCof] = cofactor3D(By,Mesh,doDerivative,matrixFree)
+     
+if ~matrixFree
+    
+    dCof = [];
+    D = @(i,j) By(:,(j-1)*3+i); % gets partial_i y^j
+    cof = [
+        D(2,2).*D(3,3)-D(3,2).*D(2,3),...%ok
+       -D(1,2).*D(3,3)+D(3,2).*D(1,3),...%trouble
+        D(1,2).*D(2,3)-D(2,2).*D(1,3),...%ok
+       -D(2,1).*D(3,3)+D(3,1).*D(2,3),...%ok
+        D(1,1).*D(3,3)-D(3,1).*D(1,3),...%ok
+       -D(1,1).*D(2,3)+D(2,1).*D(1,3),...%ok
+        D(2,1).*D(3,2)-D(3,1).*D(2,2),...%ok
+       -D(1,1).*D(3,2)+D(3,1).*D(1,2),...%ok
+        D(1,1).*D(2,2)-D(2,1).*D(1,2)... %ok
+        ];
 
-        d2S.Dy = By;
-        d2S.d2G = d2G;
+    if doDerivative
+        D1 = Mesh.dx1; D2 = Mesh.dx2; D3 = Mesh.dx3;
+        Z = sparse(size(D1,1), size(D2,2));
+        D = @(i,j) sdiag(By(:,(j-1)*3+i));
+
+        dCof{1} = [  Z                 , D(3,3)*D2-D(2,3)*D3, D(2,2)*D3-D(3,2)*D2];
+        dCof{2} = [  Z                 , D(1,3)*D3-D(3,3)*D1, D(3,2)*D1-D(1,2)*D3];
+        dCof{3} = [  Z                 , D(2,3)*D1-D(1,3)*D2, D(1,2)*D2-D(2,2)*D1];
+        dCof{4} = [ D(2,3)*D3-D(3,3)*D2, Z                  , D(3,1)*D2-D(2,1)*D3];
+        dCof{5} = [ D(3,3)*D1-D(1,3)*D3, Z                  , D(1,1)*D3-D(3,1)*D1];
+        dCof{6} = [ D(1,3)*D2-D(2,3)*D1, Z                  , D(2,1)*D1-D(1,1)*D2];
+        dCof{7} = [ D(3,2)*D2-D(2,2)*D3 , D(2,1)*D3-D(3,1)*D2, Z];
+        dCof{8} = [ D(1,2)*D3-D(3,2)*D1 , D(3,1)*D1-D(1,1)*D3, Z];
+        dCof{9} = [ D(2,2)*D1-D(1,2)*D2 , D(1,1)*D2-D(2,1)*D1, Z];
+    end
+
+else
+      
+    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;  dx3 = Mesh.mfdx3;
+            
+    cof{1} = @(yc)  dx2.D(yc(:,2)).*dx3.D(yc(:,3)) - dx3.D(yc(:,2)).*dx2.D(yc(:,3));
+    cof{2} = @(yc) -dx1.D(yc(:,2)).*dx3.D(yc(:,3)) + dx3.D(yc(:,2)).*dx1.D(yc(:,3));
+    cof{3} = @(yc)  dx1.D(yc(:,2)).*dx2.D(yc(:,3)) - dx2.D(yc(:,2)).*dx1.D(yc(:,3));
+    cof{4} = @(yc) -dx2.D(yc(:,1)).*dx3.D(yc(:,3)) + dx3.D(yc(:,1)).*dx2.D(yc(:,3));
+    cof{5} = @(yc)  dx1.D(yc(:,1)).*dx3.D(yc(:,3)) - dx3.D(yc(:,1)).*dx1.D(yc(:,3));
+    cof{6} = @(yc) -dx1.D(yc(:,1)).*dx2.D(yc(:,3)) + dx2.D(yc(:,1)).*dx1.D(yc(:,3));
+    cof{7} = @(yc)  dx2.D(yc(:,1)).*dx3.D(yc(:,2)) - dx3.D(yc(:,1)).*dx2.D(yc(:,2));
+    cof{8} = @(yc) -dx1.D(yc(:,1)).*dx3.D(yc(:,2)) + dx3.D(yc(:,1)).*dx1.D(yc(:,2));
+    cof{9} = @(yc)  dx1.D(yc(:,1)).*dx2.D(yc(:,2)) - dx2.D(yc(:,1)).*dx1.D(yc(:,2));
+    
+    if doDerivative
+
+        dx{1}.D = Mesh.mfdx1.D; dx{1}.Dadj = Mesh.mfdx1.Dadj;
+        dx{2}.D = Mesh.mfdx2.D; dx{2}.Dadj = Mesh.mfdx2.Dadj;
+        dx{3}.D = Mesh.mfdx3.D; dx{3}.Dadj = Mesh.mfdx3.Dadj;
+
+        % adjoint/transpose of an element of dCof matrix
+        dCofadjele = @(i,j,k,x,yc) dx{i}.Dadj(dx{j}.D(yc(:,k)).*x);
+
+		dCof.dCofadj{1} = @(x,yc) [zeros(Mesh.nnodes,1); dCofadjele(2,3,3,x,yc)-dCofadjele(3,2,3,x,yc); dCofadjele(3,2,2,x,yc)-dCofadjele(2,3,2,x,yc)];
+		dCof.dCofadj{2} = @(x,yc) [zeros(Mesh.nnodes,1); dCofadjele(3,1,3,x,yc)-dCofadjele(1,3,3,x,yc); dCofadjele(1,3,2,x,yc)-dCofadjele(3,1,2,x,yc)];
+		dCof.dCofadj{3} = @(x,yc) [zeros(Mesh.nnodes,1); dCofadjele(1,2,3,x,yc)-dCofadjele(2,1,3,x,yc); dCofadjele(2,1,2,x,yc)-dCofadjele(1,2,2,x,yc)];
+
+		dCof.dCofadj{4} = @(x,yc) [dCofadjele(3,2,3,x,yc)-dCofadjele(2,3,3,x,yc); zeros(Mesh.nnodes,1); dCofadjele(2,3,1,x,yc)-dCofadjele(3,2,1,x,yc)];
+		dCof.dCofadj{5} = @(x,yc) [dCofadjele(1,3,3,x,yc)-dCofadjele(3,1,3,x,yc); zeros(Mesh.nnodes,1); dCofadjele(3,1,1,x,yc)-dCofadjele(1,3,1,x,yc)];
+		dCof.dCofadj{6} = @(x,yc) [dCofadjele(2,1,3,x,yc)-dCofadjele(1,2,3,x,yc); zeros(Mesh.nnodes,1); dCofadjele(1,2,1,x,yc)-dCofadjele(2,1,1,x,yc)];
+
+		dCof.dCofadj{7} = @(x,yc) [dCofadjele(2,3,2,x,yc)-dCofadjele(3,2,2,x,yc); dCofadjele(3,2,1,x,yc)-dCofadjele(2,3,1,x,yc); zeros(Mesh.nnodes,1)];
+		dCof.dCofadj{8} = @(x,yc) [dCofadjele(3,1,2,x,yc)-dCofadjele(1,3,2,x,yc); dCofadjele(1,3,1,x,yc)-dCofadjele(3,1,1,x,yc); zeros(Mesh.nnodes,1)];
+		dCof.dCofadj{9} = @(x,yc) [dCofadjele(1,2,2,x,yc)-dCofadjele(2,1,2,x,yc); dCofadjele(2,1,1,x,yc)-dCofadjele(1,2,1,x,yc); zeros(Mesh.nnodes,1)];
+
+		% element of dCof matrix
+		dCofele = @(i,j,k,l,x,yc) dx{i}.D(yc(:,j)).*dx{k}.D(x(:,l));
+
+		dCof.dCof{1} = @(x,yc) dCofele(3,3,2,2,x,yc)-dCofele(2,3,3,2,x,yc) + dCofele(2,2,3,3,x,yc) - dCofele(3,2,2,3,x,yc);
+		dCof.dCof{2} = @(x,yc) dCofele(1,3,3,2,x,yc)-dCofele(3,3,1,2,x,yc) + dCofele(3,2,1,3,x,yc) - dCofele(1,2,3,3,x,yc);
+		dCof.dCof{3} = @(x,yc) dCofele(2,3,1,2,x,yc)-dCofele(1,3,2,2,x,yc) + dCofele(1,2,2,3,x,yc) - dCofele(2,2,1,3,x,yc);
+
+		dCof.dCof{4} = @(x,yc) dCofele(2,3,3,1,x,yc)-dCofele(3,3,2,1,x,yc) + dCofele(3,1,2,3,x,yc) - dCofele(2,1,3,3,x,yc);
+		dCof.dCof{5} = @(x,yc) dCofele(3,3,1,1,x,yc)-dCofele(1,3,3,1,x,yc) + dCofele(1,1,3,3,x,yc) - dCofele(3,1,1,3,x,yc);
+		dCof.dCof{6} = @(x,yc) dCofele(1,3,2,1,x,yc)-dCofele(2,3,1,1,x,yc) + dCofele(2,1,1,3,x,yc) - dCofele(1,1,2,3,x,yc);
+
+		dCof.dCof{7} = @(x,yc) dCofele(3,2,2,1,x,yc)-dCofele(2,2,3,1,x,yc) + dCofele(2,1,3,2,x,yc) - dCofele(3,1,2,2,x,yc);
+		dCof.dCof{8} = @(x,yc) dCofele(1,2,3,1,x,yc)-dCofele(3,2,1,1,x,yc) + dCofele(3,1,1,2,x,yc) - dCofele(1,1,3,2,x,yc);
+		dCof.dCof{9} = @(x,yc) dCofele(2,2,1,1,x,yc)-dCofele(1,2,2,1,x,yc) + dCofele(1,1,2,2,x,yc) - dCofele(2,1,1,2,x,yc);
+       
     end
     
 end
-
- function [cof,dCof] = cofactor3D(By,Mesh,doDerivative)
-dCof = [];
-D = @(i,j) By(:,(j-1)*3+i); % gets partial_i y^j
-cof = [
-    D(2,2).*D(3,3)-D(3,2).*D(2,3),...%ok
-   -D(1,2).*D(3,3)+D(3,2).*D(1,3),...%trouble
-    D(1,2).*D(2,3)-D(2,2).*D(1,3),...%ok
-   -D(2,1).*D(3,3)+D(3,1).*D(2,3),...%ok
-    D(1,1).*D(3,3)-D(3,1).*D(1,3),...%ok
-   -D(1,1).*D(2,3)+D(2,1).*D(1,3),...%ok
-    D(2,1).*D(3,2)-D(3,1).*D(2,2),...%ok
-   -D(1,1).*D(3,2)+D(3,1).*D(1,2),...%ok
-    D(1,1).*D(2,2)-D(2,1).*D(1,2)... %ok
-    ];
-
-if doDerivative
-    D1 = Mesh.dx1; D2 = Mesh.dx2; D3 = Mesh.dx3;
-    Z = sparse(size(D1,1), size(D2,2));
-    D = @(i,j) sdiag(By(:,(j-1)*3+i));
-    
-    dCof{1} = [  Z                 , D(3,3)*D2-D(2,3)*D3, D(2,2)*D3-D(3,2)*D2];
-    dCof{2} = [  Z                 , D(1,3)*D3-D(3,3)*D1, D(3,2)*D1-D(1,2)*D3];
-    dCof{3} = [  Z                 , D(2,3)*D1-D(1,3)*D2, D(1,2)*D2-D(2,2)*D1];
-    dCof{4} = [ D(2,3)*D3-D(3,3)*D2, Z                  , D(3,1)*D2-D(2,1)*D3];
-    dCof{5} = [ D(3,3)*D1-D(1,3)*D3, Z                  , D(1,1)*D3-D(3,1)*D1];
-    dCof{6} = [ D(1,3)*D2-D(2,3)*D1, Z                  , D(2,1)*D1-D(1,1)*D2];
-    dCof{7} = [ D(3,2)*D2-D(2,2)*D3 , D(2,1)*D3-D(3,1)*D2, Z];
-    dCof{8} = [ D(1,2)*D3-D(3,2)*D1 , D(3,1)*D1-D(1,1)*D3, Z];
-    dCof{9} = [ D(2,2)*D1-D(1,2)*D2 , D(1,1)*D2-D(2,1)*D1, Z];
-end
-
 
 function D = getDiagVolume(Mesh,yc,alphaVolume)
 dim = Mesh.dim;
@@ -411,3 +542,8 @@ regOptn = {'alpha',1,'alphaLength',0,'alphaArea',1,'alphaVolume',0};
 fctn = @(y) feval(mfilename,y-xn(:),xn(:),Mesh,regOptn{:},'matrixFree',0);
 [Sc, dS, d2S] = fctn(yn(:));
 checkDerivative(fctn,yn(:));
+
+fctn = @(y) feval(mfilename,y-xn(:),xn(:),Mesh,regOptn{:},'matrixFree',1);
+[ScMF, dSMF, d2SMF] = fctn(yn(:));
+
+
