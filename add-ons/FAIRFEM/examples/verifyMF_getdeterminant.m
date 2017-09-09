@@ -1,3 +1,4 @@
+clear all;
 % verify getdeterminant matrix free implementation
 
 %omega = [0 3 0 5]; m = [2 4];

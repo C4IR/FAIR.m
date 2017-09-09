@@ -310,7 +310,7 @@ if ~matrixFree
     end
 
 else
-      
+    dCof = [];  
     dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;  dx3 = Mesh.mfdx3;
             
     cof{1} = @(yc)  dx2.D(yc(:,2)).*dx3.D(yc(:,3)) - dx3.D(yc(:,2)).*dx2.D(yc(:,3));

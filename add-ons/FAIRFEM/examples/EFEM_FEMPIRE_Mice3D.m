@@ -14,7 +14,7 @@ omega = ML{level}.omega; m = ML{level}.m;
 
 viewImage('reset','viewImage','imgmontage','colormap','gray');
 imgModel('reset','imgModel','splineInterMex','regularizer','moments','theta',1e-1);
-regularizer('reset','regularizer','mbHyperElasticFEM','alpha',1e1);
+regularizer('reset','regularizer','mfHyperElasticFEM','alpha',1e1);
 [T,R] = imgModel('coefficients',ML{level}.T,ML{level}.R,omega,'out',0);
 
 Mesh = TetraMesh1(omega,m);
@@ -27,6 +27,6 @@ fctn([]);
 FAIRplotsFEM('reset','mode','FEM','fig',level,'plots',1);
 FAIRplotsFEM('init',struct('Tc',T,'Rc',R,'Mesh',Mesh));
 
-yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver','mbPCG-Jacobi');
+yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver',@FEMPIREsolveGN_PCG);
 
 %showResults(ML,yc,'level',level);

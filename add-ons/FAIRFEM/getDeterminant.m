@@ -24,6 +24,7 @@ dDet = [];
 if nargin==0, help(mfilename); runMinimalExample; return; end;
 
 matrixFree = regularizer('get','matrixFree');
+if isempty(matrixFree); matrixFree = 0; end
 dim = Mesh.dim;
 yc = reshape(yc,[],dim);
 
@@ -61,7 +62,7 @@ switch dim
         end
     case 3
         
-        if ~matrixFree
+        if  ~matrixFree
             % compute derivative
             GRAD = Mesh.GRAD;
             By = reshape(GRAD*reshape(yc,[],3),[],9);
