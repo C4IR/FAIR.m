@@ -29,4 +29,8 @@ FAIRplotsFEM('init',struct('Tc',T,'Rc',R,'Mesh',Mesh));
 
 yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver','mbPCG-Jacobi');
 
+% matrixfree version
+regularizer('reset','regularizer','mfHyperElasticFEM','alpha',1e1);
+ycMF = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver',@FEMPIREsolveGN_PCG);
+
 %showResults(ML,yc,'level',level);
