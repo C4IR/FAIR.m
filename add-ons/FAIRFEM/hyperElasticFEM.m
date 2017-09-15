@@ -103,7 +103,6 @@ if not(matrixFree), % matrix-based
                d2Sarea = d2Sarea + dA'*sdiag(alphaArea*vol.*d2H(:,i))*dA;
             end
             clear dA dH d2H
-%             dCof{4:9} = [];
         end
         
     else
@@ -127,10 +126,15 @@ if not(matrixFree), % matrix-based
         det = By(:,1).*cof(:,1)+By(:,2).*cof(:,2)+By(:,3).*cof(:,3);
        
         if doDerivative,
-            Z = sparse(size(D1,1),size(D1,2));
+            %Z = sparse(size(D1,1),size(D1,2));
             % simple product rule
-            dDet = [sdiag(cof(:,1))*D1 + sdiag(cof(:,2))*D2 + sdiag(cof(:,3))*D3,Z,Z]...
-                + sdiag(By(:,1))*dCof{1} + sdiag(By(:,2))*dCof{2} + sdiag(By(:,3))*dCof{3};
+            %dDet = [sdiag(cof(:,1))*D1 + sdiag(cof(:,2))*D2 + sdiag(cof(:,3))*D3,Z,Z]...
+            %    + sdiag(By(:,1))*dCof{1} + sdiag(By(:,2))*dCof{2} + sdiag(By(:,3))*dCof{3};
+
+            dDet = [sdiag(cof(:,1))*D1 + sdiag(cof(:,2))*D2 + sdiag(cof(:,3))*D3,...
+                    sdiag(cof(:,4))*D1 + sdiag(cof(:,5))*D2 + sdiag(cof(:,6))*D3,...
+                    sdiag(cof(:,7))*D1 + sdiag(cof(:,8))*D2 + sdiag(cof(:,9))*D3];
+
         end
     end
     [G,dG,d2G] = psi(det,doDerivative);
@@ -163,9 +167,8 @@ else % matrix-free
     
     % give seperate handles for diagonals of length, area and volume
     d2S.diagLength   = @(Mesh) getDiagLength(Mesh,alphaLength);
-    d2S.diagArea     = [];%@(Mesh) getDiagArea(Mesh,alphaLength);
+    d2S.diagArea     = @(Mesh) getDiagArea(Mesh,yc,alphaArea);
     d2S.diagVol      = @(Mesh) getDiagVolume(Mesh,yc,alphaVolume);
-    d2S.diag         = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
     
     % length regularizer
     dSlength = transpose( alphaLength* d2S.BTy(repmat(Mesh.vol,[dim^2,1]).*d2S.By(uc,Mesh),Mesh) );
@@ -244,8 +247,8 @@ else % matrix-free
         if doDerivative
             
             dDet = @(x)  cof{1}(yc).*dx1.D(x(:,1)) + cof{2}(yc).*dx2.D(x(:,1)) + cof{3}(yc).*dx3.D(x(:,1)) +...
-                                  cof{4}(yc).*dx1.D(x(:,2)) + cof{5}(yc).*dx2.D(x(:,2)) + cof{6}(yc).*dx3.D(x(:,2)) +...
-                                  cof{7}(yc).*dx1.D(x(:,3)) + cof{8}(yc).*dx2.D(x(:,3)) + cof{9}(yc).*dx3.D(x(:,3));
+                         cof{4}(yc).*dx1.D(x(:,2)) + cof{5}(yc).*dx2.D(x(:,2)) + cof{6}(yc).*dx3.D(x(:,2)) +...
+                         cof{7}(yc).*dx1.D(x(:,3)) + cof{8}(yc).*dx2.D(x(:,3)) + cof{9}(yc).*dx3.D(x(:,3));
                               
             dDetadj = @(x) [ ...
                                  dx1.Dadj(cof{1}(yc).*x) + dx2.Dadj(cof{2}(yc).*x) + dx3.Dadj(cof{3}(yc).*x);...
@@ -266,9 +269,11 @@ else % matrix-free
         if dim==3
             dS  = dSlength  + dSarea + dSvolume;
             d2S.d2S = @(x) d2Slength(x)  + d2Sarea(x) + d2Svolume(x);
+            d2S.diag = @(yc) d2S.diagLength(Mesh) + d2S.diagArea(Mesh) + d2S.diagVol(Mesh);
         elseif dim==2
             dS = dSlength + dSvolume;
             d2S.d2S  = @(x) d2Slength(x) + d2Svolume(x);
+            d2S.diag = @(yc) d2S.diagLength(Mesh) + d2S.diagVol(Mesh);
         end
     end
     
@@ -304,13 +309,14 @@ if ~matrixFree
         dCof{4} = [ D(2,3)*D3-D(3,3)*D2, Z                  , D(3,1)*D2-D(2,1)*D3];
         dCof{5} = [ D(3,3)*D1-D(1,3)*D3, Z                  , D(1,1)*D3-D(3,1)*D1];
         dCof{6} = [ D(1,3)*D2-D(2,3)*D1, Z                  , D(2,1)*D1-D(1,1)*D2];
-        dCof{7} = [ D(3,2)*D2-D(2,2)*D3 , D(2,1)*D3-D(3,1)*D2, Z];
-        dCof{8} = [ D(1,2)*D3-D(3,2)*D1 , D(3,1)*D1-D(1,1)*D3, Z];
-        dCof{9} = [ D(2,2)*D1-D(1,2)*D2 , D(1,1)*D2-D(2,1)*D1, Z];
+        dCof{7} = [ D(3,2)*D2-D(2,2)*D3, D(2,1)*D3-D(3,1)*D2, Z];
+        dCof{8} = [ D(1,2)*D3-D(3,2)*D1, D(3,1)*D1-D(1,1)*D3, Z];
+        dCof{9} = [ D(2,2)*D1-D(1,2)*D2, D(1,1)*D2-D(2,1)*D1, Z];
     end
 
 else
-      
+
+    dCof = [];
     dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2;  dx3 = Mesh.mfdx3;
             
     cof{1} = @(yc)  dx2.D(yc(:,2)).*dx3.D(yc(:,3)) - dx3.D(yc(:,2)).*dx2.D(yc(:,3));
@@ -396,10 +402,109 @@ if dim==2
         + Mesh.mfPi(vol.*d2G.*(By(:,j).*dphi3(:,i)).*(By(:,l).*dphi3(:,k)),3); % diagonal of Dxi'*Dxi 
     
     D = [Dxi(1,4)+ Dxi(2,3) - 2*Dxy(1,4,2,3) ;Dxi(1,2)+ Dxi(2,1) - 2*Dxy(1,2,2,1)];
+
 else
-    error('nyi');
+    dphi = getBasisGradient(Mesh);    
+    dphi1 = dphi{1}; dphi2 = dphi{2}; dphi3 = dphi{3}; dphi4 = dphi{4};
+    
+    [cof, dCof] = cofactor3D([],Mesh,0,1);
+    yc = reshape(yc,[],3);
+    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2; dx3 = Mesh.mfdx3;
+    det = dx1.D(yc(:,1)).*cof{1}(yc) + dx2.D(yc(:,1)).*cof{2}(yc) + dx3.D(yc(:,1)).*cof{3}(yc);
+    [~,~,d2G] = psi(det,1);
+    
+    % get boundaries
+    Dxi = @(i,j) Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi1(:,i)).^2,1) ... 
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi2(:,i)).^2,2) ...
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi3(:,i)).^2,3) ...
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi4(:,i)).^2,4); % diagonal of Dxi'*Dxi 
+    
+    Dxy = @(i,j,k,l) Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi1(:,i)).*(cof{l}(yc).*dphi1(:,k)),1) ... % byproduct terms for verifications
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi2(:,i)).*(cof{l}(yc).*dphi2(:,k)),2) ...
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi3(:,i)).*(cof{l}(yc).*dphi3(:,k)),3) ...
+        + Mesh.mfPi(vol.*d2G.*(cof{j}(yc).*dphi4(:,i)).*(cof{l}(yc).*dphi4(:,k)),4); % diagonal of Dxi'*Dxi 
+    
+    D1 = Dxi(1,1)+ Dxi(2,2) + Dxi(3,3) + 2*Dxy(1,1,2,2) + 2*Dxy(1,1,3,3) + 2*Dxy(2,2,3,3);
+    D2 = Dxi(1,4)+ Dxi(2,5) + Dxi(3,6) + 2*Dxy(1,4,2,5) + 2*Dxy(1,4,3,6) + 2*Dxy(2,5,3,6);
+    D3 = Dxi(1,7)+ Dxi(2,8) + Dxi(3,9) + 2*Dxy(1,7,2,8) + 2*Dxy(1,7,3,9) + 2*Dxy(2,8,3,9);
+    
+    D = [D1;D2;D3];
+    
 end
 D = alphaVolume*D;
+
+
+function D = getDiagArea(Mesh,yc,alphaArea)
+%dim = Mesh.dim;
+vol = Mesh.vol;
+
+dphi = getBasisGradient(Mesh);    
+%dphi1 = dphi{1}; dphi2 = dphi{2}; dphi3 = dphi{3}; dphi4 = dphi{4};
+
+[cof, ~] = cofactor3D([],Mesh,0,1);
+yc = reshape(yc,[],3);
+% compute areas
+area = [
+        cof{1}(yc).^2+cof{4}(yc).^2+cof{7}(yc).^2;
+        cof{2}(yc).^2+cof{5}(yc).^2+cof{8}(yc).^2;
+        cof{3}(yc).^2+cof{6}(yc).^2+cof{9}(yc).^2;
+        ];    
+% compute penalty
+[~,~,d2H] = phiDW(area,1);
+d2H = reshape(d2H,[],3);
+
+dx{1}.D = Mesh.mfdx1.D; dx{1}.Dadj = Mesh.mfdx1.Dadj;
+dx{2}.D = Mesh.mfdx2.D; dx{2}.Dadj = Mesh.mfdx2.Dadj;
+dx{3}.D = Mesh.mfdx3.D; dx{3}.Dadj = Mesh.mfdx3.Dadj;
+
+D = @(i,j) dx{i}.D(yc(:,j));
+%dA = 2*(cof{i}(yc)*dCof{i}+sdiag(cof(:,i+3))*dCof{i+3}+sdiag(cof(:,i+6))*dCof{i+6});
+%vol.*d2H(:,i))*dA;
+
+% dCof{1} = [  Z                 , D(3,3)*D2-D(2,3)*D3, D(2,2)*D3-D(3,2)*D2];
+% dCof{2} = [  Z                 , D(1,3)*D3-D(3,3)*D1, D(3,2)*D1-D(1,2)*D3];
+% dCof{3} = [  Z                 , D(2,3)*D1-D(1,3)*D2, D(1,2)*D2-D(2,2)*D1];
+% dCof{4} = [ D(2,3)*D3-D(3,3)*D2, Z                  , D(3,1)*D2-D(2,1)*D3];
+% dCof{5} = [ D(3,3)*D1-D(1,3)*D3, Z                  , D(1,1)*D3-D(3,1)*D1];
+% dCof{6} = [ D(1,3)*D2-D(2,3)*D1, Z                  , D(2,1)*D1-D(1,1)*D2];
+% dCof{7} = [ D(3,2)*D2-D(2,2)*D3, D(2,1)*D3-D(3,1)*D2, Z];
+% dCof{8} = [ D(1,2)*D3-D(3,2)*D1, D(3,1)*D1-D(1,1)*D3, Z];
+% dCof{9} = [ D(2,2)*D1-D(1,2)*D2, D(1,1)*D2-D(2,1)*D1, Z];
+Z = zeros(Mesh.ntri,1);
+dCof{1} = @(j) [  Z                                         , D(3,3).*dphi{j}(:,2)-D(2,3).*dphi{j}(:,3), D(2,2).*dphi{j}(:,3)-D(3,2).*dphi{j}(:,2)];
+dCof{2} = @(j) [  Z                                         , D(1,3).*dphi{j}(:,3)-D(3,3).*dphi{j}(:,1), D(3,2).*dphi{j}(:,1)-D(1,2).*dphi{j}(:,3)];
+dCof{3} = @(j) [  Z                                         , D(2,3).*dphi{j}(:,1)-D(1,3).*dphi{j}(:,2), D(1,2).*dphi{j}(:,2)-D(2,2).*dphi{j}(:,1)];
+dCof{4} = @(j) [ D(2,3).*dphi{j}(:,3)-D(3,3).*dphi{j}(:,2)  , Z                                        , D(3,1).*dphi{j}(:,2)-D(2,1).*dphi{j}(:,3)];
+dCof{5} = @(j) [ D(3,3).*dphi{j}(:,1)-D(1,3).*dphi{j}(:,3)  , Z                                        , D(1,1).*dphi{j}(:,3)-D(3,1).*dphi{j}(:,1)];
+dCof{6} = @(j) [ D(1,3).*dphi{j}(:,2)-D(2,3).*dphi{j}(:,1)  , Z                                        , D(2,1).*dphi{j}(:,1)-D(1,1).*dphi{j}(:,2)];
+dCof{7} = @(j) [ D(3,2).*dphi{j}(:,2)-D(2,2).*dphi{j}(:,3)  , D(2,1).*dphi{j}(:,3)-D(3,1).*dphi{j}(:,2), Z];
+dCof{8} = @(j) [ D(1,2).*dphi{j}(:,3)-D(3,2).*dphi{j}(:,1)  , D(3,1).*dphi{j}(:,1)-D(1,1).*dphi{j}(:,3), Z];
+dCof{9} = @(j) [ D(2,2).*dphi{j}(:,1)-D(1,2).*dphi{j}(:,2)  , D(1,1).*dphi{j}(:,2)-D(2,1).*dphi{j}(:,1), Z];
+    
+% vol.*d2H(:,i))*2*cof{i}(yc)*dCof{i}
+
+coeff = @(i,j)  4.*vol.*d2H(:,i).*cof{j}(yc).^2;
+
+Dxi = @(i,j) Mesh.mfPi(coeff(i,j).*dCof{j}(1).^2,1) ... 
+        + Mesh.mfPi(coeff(i,j).*dCof{j}(2).^2,2) ...
+        + Mesh.mfPi(coeff(i,j).*dCof{j}(3).^2,3) ...
+        + Mesh.mfPi(coeff(i,j).*dCof{j}(4).^2,4); % diagonal of Dxi'*Dxi 
+    
+coeff2 = @(i,j,k)  4.*vol.*d2H(:,i).*cof{j}(yc).*cof{k}(yc);
+    
+Dxy = @(i,j,k) Mesh.mfPi(coeff2(i,j,k).*dCof{j}(1).*dCof{k}(1),1) ... 
+             + Mesh.mfPi(coeff2(i,j,k).*dCof{j}(2).*dCof{k}(2),2) ...
+             + Mesh.mfPi(coeff2(i,j,k).*dCof{j}(3).*dCof{k}(3),3) ...
+             + Mesh.mfPi(coeff2(i,j,k).*dCof{j}(4).*dCof{k}(4),4); % diagonal of Dxi'*Dxi 
+
+D = zeros(Mesh.nnodes,3);
+for i=1:3
+    D = D + Dxi(i,i) + Dxi(i,i+3) + Dxi(i,i+6) + 2*Dxy(i,i,i+3) + 2*Dxy(i,i,i+6) + 2*Dxy(i,i+3,i+6);
+end
+
+D = alphaArea*D(:);
+
+
 
 
 % compute d2Svol*x
@@ -445,11 +550,70 @@ if dim==2
     D = Dxi(1)+ Dxi(2);
     D = [D;D];
 else
-    error('nyi');
+    dphi = getBasisGradient(Mesh);  
+    dphi1 = dphi{1}; dphi2 = dphi{2}; dphi3 = dphi{3}; dphi4 = dphi{4};
+    
+    % get boundaries
+    Dxi = @(i) Mesh.mfPi(vol.*dphi1(:,i).^2,1) + ...
+                Mesh.mfPi(vol.*dphi2(:,i).^2,2) + ...
+                    Mesh.mfPi(vol.*dphi3(:,i).^2,3) + ...
+                        Mesh.mfPi(vol.*dphi4(:,i).^2,4); % diagonal of Dx1'*Dx1
+        
+    D = Dxi(1)+ Dxi(2) + Dxi(3);
+    D = [D;D;D];
+
 end
 D = alphaLength*D(:);
 
+function [dphi] = getBasisGradient(Mesh)
 
+xn = Mesh.xn;
+vol = Mesh.vol;
+if Mesh.dim == 3
+% compute edges
+    v1   = Mesh.mfPi(xn,1);
+    v2   = Mesh.mfPi(xn,2);
+    v3   = Mesh.mfPi(xn,3);
+    v4   = Mesh.mfPi(xn,4);
+    e1   =  v1 - v4;
+    e2   =  v2 - v4;
+    e3   =  v3 - v4;
+    % compute inverse transformation to reference element
+    cofA =  [
+          e2(:,2).*e3(:,3)-e2(:,3).*e3(:,2), ...
+        -(e1(:,2).*e3(:,3)-e1(:,3).*e3(:,2)), ...
+          e1(:,2).*e2(:,3)-e1(:,3).*e2(:,2), ...
+        -(e2(:,1).*e3(:,3)-e2(:,3).*e3(:,1)), ...
+          e1(:,1).*e3(:,3)-e1(:,3).*e3(:,1), ...
+        -(e1(:,1).*e2(:,3)-e1(:,3).*e2(:,1)), ...
+          e2(:,1).*e3(:,2)-e2(:,2).*e3(:,1), ...
+        -(e1(:,1).*e3(:,2)-e1(:,2).*e3(:,1)), ...
+          e1(:,1).*e2(:,2)-e1(:,2).*e2(:,1), ...
+        ];
+    detA = e1(:,1).*cofA(:,1) + e2(:,1).*cofA(:,2)+ e3(:,1).*cofA(:,3);
+    
+    
+    % compute gradients of basis functions
+    dphi{1} =   cofA(:,[1 4 7])./repmat(detA,[1 3]);
+    dphi{2} =   cofA(:,[2 5 8])./repmat(detA,[1 3]);
+    dphi{3} =   cofA(:,[3 6 9])./repmat(detA,[1 3]);
+    dphi{4} =   -dphi{1} - dphi{2} - dphi{3};
+
+else
+
+    % compute edges
+    x1 =  Mesh.mfPi(xn,1);
+    x2 =  Mesh.mfPi(xn,2);
+    x3 =  Mesh.mfPi(xn,3);
+    e1 =  x1 - x3;
+    e2 =  x2 - x3;
+    
+    % compute gradients of basis functions
+    dphi{1} =   [ e2(:,2) -e2(:,1)]./[2*vol,2*vol];
+    dphi{2} =   [-e1(:,2)  e1(:,1)]./[2*vol,2*vol];
+    dphi{3} = -dphi{1} - dphi{2};
+
+end
 
 function [G dG d2G] = psi(x,doDerivative)
 %
@@ -533,11 +697,12 @@ checkDerivative(fctn,yn(:));
 
 %========== 3D
 omega = [0,10,0,8,0 4]; m = [5,6,8]; type = 1;
+%omega = [0,5,0,5,0 5]; m = [5,5,5]; type = 1;
 Mesh = TetraMesh1(omega,m);
 xn = Mesh.xn;
 yn = xn + 1e-1* randn(size(xn));
 
-regOptn = {'alpha',1,'alphaLength',0,'alphaArea',1,'alphaVolume',0};
+regOptn = {'alpha',1,'alphaLength',0,'alphaArea',0,'alphaVolume',1};
 
 fctn = @(y) feval(mfilename,y-xn(:),xn(:),Mesh,regOptn{:},'matrixFree',0);
 [Sc, dS, d2S] = fctn(yn(:));
@@ -545,5 +710,17 @@ checkDerivative(fctn,yn(:));
 
 fctn = @(y) feval(mfilename,y-xn(:),xn(:),Mesh,regOptn{:},'matrixFree',1);
 [ScMF, dSMF, d2SMF] = fctn(yn(:));
+
+% error MB - MF 
+errdS = norm(dS - dSMF)
+
+z = rand(3*Mesh.nnodes,1);
+errd2S = norm(d2S*z - d2SMF.d2S(z))
+
+errDiag = norm(diag(d2S) - d2SMF.diag(yn))
+
+ans
+
+
 
 
