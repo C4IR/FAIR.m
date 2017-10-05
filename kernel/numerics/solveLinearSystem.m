@@ -158,14 +158,14 @@ switch solver
       [dy,flag,relres,iter] = pcg(H,rhs,tolCG,maxIterCG);
     end
     
-    case {'PCG-hyperElastic'}
+  case {'PCG-hyperElastic'}
        M         = @(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
        Hoperator = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
        Ddiag     = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
        D         = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
        Preconditioner = @(x) D.\x; % Jacobi preconditioner
        [dy,flag,relres,iter] = pcg(Hoperator,rhs,tolCG,maxIterCG,Preconditioner);
-
+       
   otherwise,
     keyboard
     error(1)

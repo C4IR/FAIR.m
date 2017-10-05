@@ -4,7 +4,7 @@
 % For details see 
 % - https://github.com/C4IR/VAMPIRE.m 
 %==============================================================================
-% PCG solver for VAMPIRE
+% PCG solver for FEMPIRE
 % 
 
 function dy = FEMPIREsolveGN_PCG(rhs, H, maxIterCG, tolCG)

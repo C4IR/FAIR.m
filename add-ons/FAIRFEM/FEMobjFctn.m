@@ -68,6 +68,7 @@ m     = Mesh.m;
 yc = reshape(yc,[],dim);
 yRef = reshape(yRef,[],dim);
 doDerivative = (nargout>2);            % flag for necessity of derivatives
+matrixFree = regularizer('get','matrixFree');
 % do the work ------------------------------------------------------------
 
 
@@ -75,7 +76,7 @@ doDerivative = (nargout>2);            % flag for necessity of derivatives
 vol = Mesh.vol;
 
 % compute interpolated image and derivative
-[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative);
+[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative,'matrixFree',matrixFree);
 
 % compute SSD distance 
 rc = Tc-Rc;                     % the residual
@@ -109,24 +110,28 @@ if not(regularizer('get','matrixFree')),
   H  = dr'*d2psi*dr + d2S;
 else
   % derivatives rather explicit
-  P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
-  dr = dres*dT;
-  dD = dD*dT;
-  dJ = P(dD')' + dS;
-  
-  % approximation to d2D in matrix free mode
-  % d2D   = P'*dr'*d2psi*dr*P 
-  % P and P' are operators matrix free 
-  H.Mesh      = Mesh;
-  H.omega     = omega;
-  H.m         = m;
-  H.d2D.how   = 'P''*dr''*d2psi*dr*P';
-  H.d2D.P     = P;
-  H.d2D.dr    = dr;
-  H.d2D.d2psi = d2psi;
-  H.solver    = d2S.solver;
+    p = dD(:).*dT;
+    dD = reshape(Mesh.mfPi(p,'C'),1,[]);
 
-  H.d2S = d2S;
+    dJ = dD + dS;
+
+    % approximation to d2D in matrix free mode
+    % d2D   = P'*dr'*d2psi*dr*P
+    % P and P' are operators matrix free
+    H.Mesh      = Mesh;
+    H.omega     = omega;
+    H.m         = m;
+    H.d2D.how   = 'P''*dr''*d2psi*dr*P';
+    H.d2D.P     = @(x) reshape(Mesh.mfPi(x,'C'),[],1);
+    H.d2D.Tc    = Tc;
+    H.d2D.dT    = dT;
+    H.d2D.diag  = @() getDiag(Mesh,dT);
+    H.d2D.dres  = dres;
+    H.d2D.d2psi = d2psi;
+    H.solver    = d2S.solver;
+
+    H.d2S = d2S;
+    
 end;
 
 
@@ -135,6 +140,28 @@ end;
 function A = sdiag(v)
 A = spdiags(v(:),0,numel(v),numel(v));
 
+
+% diagonal of hessian matrix
+% sum(sdiag(vol)dTcmod.^2,1)
+% where dTcmod = dT*P;
+function D = getDiag(Mesh,dT)
+
+vol = Mesh.vol;
+dim = Mesh.dim;
+
+if dim == 2
+
+    % first term
+    D = Mesh.mfPi(vol.*(dT).^2,'C');
+    D = D(:)./3;
+    
+else
+    
+    % first term
+    D = Mesh.mfPi(vol.*(dT).^2,'C');
+    D = D(:)./4;
+     
+end
 
 
 function runMinimalExample
