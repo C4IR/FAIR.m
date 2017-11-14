@@ -36,7 +36,7 @@ if nargin == 0 && nargout == 0 && isempty(OPTN),
 end;
 
 % handle options
-[method,OPTN,task,stop] = dealOptions(OPTN,varargin{:});
+[method,OPTN,task,stop] = dealOptions(mfilename,OPTN,varargin{:});
 if stop,
   varargout{1} = method;
   if nargout > 1, varargout{2} = OPTN;  end;
@@ -64,7 +64,7 @@ if not(isempty(k))
     varargin{end+1} = Wc;
 end;
 
-[method,optn]  = dealOptions(OPTN,'set','doDerivative',(nargout>3),varargin{5:end});
+[method,optn]  = dealOptions(mfilename,OPTN,'set','doDerivative',(nargout>3),varargin{5:end});
 [Dc,rc,dD,dr,d2psi] =  feval(method,Tc,Rc,omega,m,optn{:});
   
 varargout = {Dc,rc,dD,dr,d2psi};

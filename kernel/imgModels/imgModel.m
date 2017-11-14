@@ -37,14 +37,14 @@ function varargout = imgModel(varargin)
 % handle options
 persistent OPTN 
 
-if nargin == 0 & nargout == 0 & isempty(OPTN),
+if nargin == 0 & nargout == 0 %& isempty(OPTN),
   help(mfilename);
   runMinimalExample;
   return;
 end;
 
 % check for reset, set, clear, disp, see dealOptions.m
-[method,OPTN,task,stop] = dealOptions(OPTN,varargin{:});
+[method,OPTN,task,stop] = dealOptions(mfilename,OPTN,varargin{:});
 if stop,  varargout = {method,OPTN};  return; end
 
 % update spline coefficients, if neccessary
@@ -61,7 +61,8 @@ if strcmp(task,'coefficients'),
 end;
 
 % do the work
-[method,optn] = dealOptions(OPTN,'set','doDerivative',(nargout>1),varargin{4:end});
+[method,optn] = dealOptions(mfilename,OPTN,...
+	'set','doDerivative',(nargout>1),varargin{4:end});
 k = find(strcmp(optn,mfilename));
 optn (k:k+1) = [];
 T         = varargin{1};

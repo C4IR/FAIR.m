@@ -47,7 +47,7 @@ end;
 
 % -----------------------------------------------------------------------------
 % handle options
-[method,OPTN,task,stop] = dealOptions(OPTN,varargin{:});
+[method,OPTN,task,stop] = dealOptions(mfilename,OPTN,varargin{:});
 
 
 % check the grid according to the regularizer to be used
@@ -116,7 +116,7 @@ if strcmp(task,'set') || strcmp(task,'reset'),
             [grid,matrixFree,solver] = feval(scheme,'para',[],[],OPTN{:});
     end;
     
-    [dummy,OPTN] = dealOptions(OPTN,'set','scheme',scheme,...
+    [dummy,OPTN] = dealOptions(mfilename,OPTN,'set','scheme',scheme,...
         'grid',grid,'matrixFree',matrixFree,'solver',solver);
 end;
 
@@ -130,9 +130,9 @@ end
 % do the work
 
 % extract regularization parameters
-scheme      = dealOptions(OPTN,'get','scheme');
-alpha       = dealOptions(OPTN,'get','alpha');
-matrixFree  = dealOptions(OPTN,'get','matrixFree');
+scheme      = dealOptions(mfilename,OPTN,'get','scheme');
+alpha       = dealOptions(mfilename,OPTN,'get','alpha');
+matrixFree  = dealOptions(mfilename,OPTN,'get','matrixFree');
 
 % extract variables
 yc     = varargin{1};

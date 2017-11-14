@@ -47,6 +47,7 @@ end
 spacing   = [1,1,1]; % plot every spacing(j) grid line in dimensionj
 color     = 'b';     % default color
 linewidth = 1;       % default linewidth
+axis      = 'none';
 
 for k=1:2:length(varargin),         % overwrites default parameter
   eval([varargin{k},'=varargin{',int2str(k+1),'};']);
