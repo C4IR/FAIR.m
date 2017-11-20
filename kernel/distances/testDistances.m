@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -14,8 +14,7 @@
 % 5. Test explicitly several specific distances
 %==============================================================================
 
-folder = fileparts(which(mfilename));
-files = testStart(folder);
+FAIRcheckFiles(mfilename);
 
 %% Test module distance, start with syntax
 distance('reset','distance','MIcc',...

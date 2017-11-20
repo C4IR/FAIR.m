@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -66,7 +66,7 @@ for dm = 1:length(DM),
     xc = getCellCenteredGrid(omega,m);
     Rc = imgModel(R,omega,xc);
     fctn = @(wc) PIRobjFctn(T,Rc,omega,m,0,[],[],xc,wc);
-    wOpt = GaussNewton(fctn,wSmooth,'yStop',wStop);
+    wOpt = GaussNewton(fctn,wSmooth,'yStop',wStop,'solver','backslash');
   end;
 
   omega = ML{end}.omega; m = ML{end}.m;

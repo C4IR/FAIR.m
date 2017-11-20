@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -19,7 +19,6 @@
 %   testTools.m         test the kernel/tools folder
 %               
 %   FAIRtestPara.m      handles the variables used for testings
-%   testStart.m         initializes the testing environment
 %   testEnd.m           finishes    the testing environment
 %               
 %   FAIRcheckFolder.m   generates list of files to be tested
@@ -44,7 +43,6 @@ debit = {
   'testTools.m'
   
   'FAIRtestPara.m'
-  'testStart.m'
   'testEnd.m'
   
   'FAIRcheckFolder.m'

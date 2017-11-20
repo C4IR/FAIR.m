@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -13,23 +13,16 @@
 %==============================================================================
 
 
-function [folder,files,extensions] = FAIRcheckFolder(varargin)
+function [FAIRcheckList] = FAIRcheckFolder(folder,varargin)
 
-caller  = dbstack;               % identify the name of the calling function
-caller  = caller(min(length(caller),3)).name;
 
-if nargin == 0,
-  if strcmp(caller,'FAIReval')
-    return;
-  end;
-  folder  = fileparts(which(caller));
-else
-  folder = varargin{1};
-end;
+% if nargin == 0 | strcmp(caller,'FAIReval')
+%     return;
+% end
+
 
 FAIRmessage(mfilename)
 fprintf('checks on [%s]\n',folder)
-fprintf('caller is <%s>\n',caller)
 FAIRmessage('=');
 
 files   = {};
@@ -67,6 +60,7 @@ K = [find(strcmp(credit,'.')),...
 
 K = unique(K);
 credit(K) = [];
+available = [];
 
 % check what is in or out
 missing     = [];
@@ -76,11 +70,15 @@ for j=1:length(debit)
     missing(end+1) = j;
   else
     credit(k) = [];
+    available(end+1) = j;
   end;
 end
 
 % completeness of folder
-fprintf('folder <%s> %d missing files\n',folder,length(missing));
+fprintf('folder <%s> %3d-of-%d files contained\n',...
+  folder,length(available),length(debit));
+fprintf('folder <%s> %3d-of-%d files missing\n',...
+  folder,length(missing),length(debit));
 if length(missing) > 0,
   fprintf(2,'folder <%s> %d missing files\n',folder,length(missing));
   for j=1:length(missing)
@@ -93,16 +91,16 @@ end;
 
 % additional files in folder
 
-FAIRignoreCompiles = FAIRtestPara('get','FAIRignoreCompiles')
-
-if strcmp(FAIRignoreCompiles,'on')
-  ignore = zeros(length(credit),1);
-  for k=1:length(credit)
-    [~,~,ext] = fileparts(credit{k});
-    ignore(k) =  any(strcmp(ext,{'.o',['.',mexext]}));
-  end;
-  credit(find(ignore)) = [];    
-end;
+% FAIRignoreCompiles = FAIRtestPara('get','FAIRignoreCompiles');
+% 
+% if strcmp(FAIRignoreCompiles,'on')
+%   ignore = zeros(length(credit),1);
+%   for k=1:length(credit)
+%     [~,~,ext] = fileparts(credit{k});
+%     ignore(k) =  any(strcmp(ext,{'.o',['.',mexext]}));
+%   end;
+%   credit(find(ignore)) = [];    
+% end;
 
 addons = length(credit);
 % fprintf('folder <%s> %d additional files\n',folder,addons);
@@ -112,7 +110,7 @@ if addons>0,
   for j=1:addons
     fprintf('  - %4d-of%4d additional %-30s\n',j,addons,credit{j});
   end;
-  keyboard
+  % keyboard
 end;
 
 % merge debit and andons, sort by type
@@ -124,12 +122,18 @@ assert( OK, sprintf('folder <%s> contains unknown filetype(s)',folder));
 files         = files(filelist);
 extensions    = extensions(filelist);
 
+
+for j=1:length(files),
+  FAIRcheckList(j).name  = fullfile(folder,files{j});
+  FAIRcheckList(j).check = 0;
+end;
+
 FAIRmessage('=');
 %------------------------------------------------------------------------------
 
 function [C,OK] = sortFiles(list)
 
-ext = {'.cpp','.c','.h','.o',['.',mexext],'.mat','.jpg','.m'};
+ext = {'.cpp','.c','.h','.o',['.',mexext],'.mexa64','.mat','.jpg','.m'};
 C = []; R = 1:length(list);
 for p=1:length(ext),
   K = find(strcmp(list,ext{p}));

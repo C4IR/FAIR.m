@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -14,7 +14,7 @@
 % 
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
 
 % load data
 Tij = imread('hands-T.jpg'); Tdata = double(flipud(Tij))';
@@ -37,5 +37,4 @@ subplot(2,2,4); viewImage(Rdata,omega,m);  title('FAIR R data on \Omega, xy');
 % create multi-level representaion
 ML = getMultilevel({Tdata,Rdata},omega,m,'fig',2);
 
-echo off
 %==============================================================================

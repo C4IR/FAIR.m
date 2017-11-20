@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -16,7 +16,9 @@
 % - interpolate the data and visualize 
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
+
+setBreakpoint(mfilename,{26,44,63})
 
 % setup data 
 fprintf('%s\n','generate data ...');
@@ -37,7 +39,6 @@ x = @(i) reshape(xc,[],2)*e(i);
 
 fprintf('[x1;x2;T]=\n');
 disp(reshape([x(1);x(2);dataT(:)],[],3)');
-FAIRpause;
 
 % plot the data
 fprintf('%s\n','visualize the data')
@@ -57,7 +58,6 @@ Tfine = splineInter(T,omega,Xfine(:));  % sample interpolant
 
 sh = surf(Xfine(:,:,1),Xfine(:,:,2),reshape(Tfine,mfine));
 set(sh,'facealpha',0.5)
-FAIRpause; 
 
 % visualize
 fprintf('%s\n','alternative visualization using viewImage2D')
@@ -70,5 +70,4 @@ subplot(1,2,2); viewImage2D(Tfine,omega,mfine,'colormap',gray(4)); hold on;
 title('visualization of interpolant','fontsize',30)
 set(gca,'fontsize',30)
 
-echo off
 %==============================================================================

@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -42,7 +42,7 @@ FAIRplots('init',struct('Tc',T,'Rc',R,'omega',omega,'m',m));
 fctn = @(yc) NPIRobjFctn(T,Rc,omega,m,yRef,yc); fctn([]); % report status
 
 % -- solve the optimization problem -------------------------------------------
-[yc,his] = GaussNewton(fctn,y0,'maxIter',500,'Plots',@FAIRplots,'yStop',yStop);
+[yc,his] = GaussNewton(fctn,y0,'maxIter',500,'Plots',@FAIRplots,'yStop',yStop,'solver','backslash');
 % report results
 iter = size(his.his,1)-2; reduction = 100*fctn(yc)/fctn(y0);
 fprintf('reduction = %s%% after %d iterations\n',num2str(reduction),iter);

@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -20,5 +20,6 @@ T     = B(1)\dataT/B(2);
 xf    = reshape(getCellCenteredGrid(omega,10*m),[],2);
 
 fctn = @(x) splineInter(T,omega,x);
+figure(1); clf;
 [fig,ph,th] = checkDerivative(fctn,xf(:),'fig',1);
 %==============================================================================

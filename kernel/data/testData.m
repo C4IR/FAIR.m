@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -13,10 +13,16 @@
 % 4. Check if all expected variables are present.
 %==============================================================================
 
-folder = fileparts(which(mfilename));
-files = testStart(folder);
 
-%% 4. Check if all expected variables are present
+FAIRcheckFiles(mfilename);
+
+FAIRtestStatus = getappdata(0,'FAIRtestStatus')
+
+shortname = @(x) x(max(0,find(x == filesep,1,'last'))+1:end);
+files = cellfun(shortname,{FAIRtestStatus.('testData')(:).name},'UniformOutput',0);
+
+%% Check if all expected variables are present
+folder        = fileparts(which(mfilename));
 J = find(cellfun(@(s) isequal(strfind(s,'setup'),1), files));
 fprintf('folder <%s> checking %d .mat-files\n',folder,length(J));
 

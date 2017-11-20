@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -13,8 +13,9 @@
 % 4. Check administrative modul imgModel.m
 %==============================================================================
 
-folder = fileparts(which(mfilename));
-files  = testStart(folder);
+FAIRcheckFiles(mfilename);
+
+FAIRtestStatus = getappdata(0,'FAIRtestStatus')
 
 %% check the administrative module
 

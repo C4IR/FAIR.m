@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -36,7 +36,9 @@ M  = hd*sparse(kron(speye(2),...
   kron(Qi(2),Mi(1))+2*kron(Mi(2),Mi(1))+kron(Mi(2),Qi(1))));
 
 %% set up elastic regularization matrix
-B = getElasticMatrixNodal(omega,m);
+mu     = 2;
+lambda = 1;
+B = getElasticMatrixNodal(omega,m,mu,lambda);
 A = B'*B;
 [y,dy] = splineTransformation2D(w0,getNodalGrid(omega,m),'m',m+1);
 M = [dy'*A*dy];
@@ -61,7 +63,7 @@ xc = getCellCenteredGrid(omega,m);
 Rc = imgModel(R,omega,xc);
 
 % ----- call Gaus-Newton ------------------------------------
-GNoptn = {'maxIter',100,'tolY',1e-4,'tolJ',1e-4,'tolG',1};
+GNoptn = {'maxIter',100,'tolY',1e-4,'tolJ',1e-4,'tolG',1,'solver','backslash'};
 [wOpt,his] = GaussNewton(fctn,w0,GNoptn{:},'Plots',@FAIRplots);
 
 % plot iteration history

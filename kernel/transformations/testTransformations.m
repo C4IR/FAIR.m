@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -14,8 +14,7 @@
 % 5. Transform certain 2D and 3D grids  
 %==============================================================================
 
-folder = fileparts(which(mfilename));
-files = testStart(folder);
+FAIRcheckFiles(mfilename);
 
 %% Test module trafo, start with syntax
 trafo('reset','trafo','splineTransformation2D',...

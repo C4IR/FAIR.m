@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -52,7 +52,7 @@ for j=1:length(theta),
   if j ==1, fctn([]); end;  % report status
   
   % solve problem for this scale 
-  [wc,his] = GaussNewton(fctn,w0,'yStop',wStop,'Plots',@FAIRplots);
+  [wc,his] = GaussNewton(fctn,w0,'yStop',wStop,'Plots',@FAIRplots,'solver','backslash');
   % and use solutions as starting guess for next scale  
   w0 = wc;
 end;

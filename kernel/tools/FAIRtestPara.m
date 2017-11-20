@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -62,6 +62,7 @@ end;
 function setFAIRtestpara(varargin)
 
 para = {
+  'FAIRcaller',         ''
   'FAIRfolder',         ''
   'FAIRedit',           'on'
   'FAIRcompile',        'on'
@@ -74,6 +75,8 @@ para = {
   'FAIRfilter',         'off'
   'FAIRpause',          'off'
   'FAIRinput',          'off'
+  'FAIRclearTemp',      'on'
+  'FAIRcheckList',      []
 };
 
 for j=1:size(para,1)
@@ -100,17 +103,19 @@ end;
 
 FAIRmessage('.');
 for k = K
-name  = Fnames{k};
-value = getappdata(0,name);
-if ischar(value)
-  fprintf('%-20s: %s\n',name,value)
-elseif isnumeric(value) && (length(value) == 1)
-  fprintf('%-20s= %s\n',name,num2str(value))
-elseif isnumeric(value),
-  fprintf('%-20s: %d files\n',name,length(value))
-else
-  keyboard
-end;
+  name  = Fnames{k};
+  value = getappdata(0,name);
+  if ischar(value)
+    fprintf('%-20s: %s\n',name,value)
+  elseif isnumeric(value) && (length(value) == 1)
+    fprintf('%-20s= %s\n',name,num2str(value))
+  elseif isnumeric(value),
+    fprintf('%-20s: %d files\n',name,length(value))
+  elseif isstruct(value),
+    fprintf('%-20s: %d files\n',['struct ',name],length(value))
+  else
+    keyboard
+  end;
 end;
 FAIRmessage('.');
 

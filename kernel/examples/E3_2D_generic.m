@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -16,7 +16,7 @@
 % - view image in high resolution and low resolution
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
 
 fprintf('%s\n','generic interpolation and visualization')
 
@@ -42,7 +42,7 @@ imgModel('reset','imgModel','splineInter','regularizer','moments','theta',1e-2);
 T = getSplineCoefficients(dataT,'out',0);
 
 fprintf('%s\n','generate some points and interpolate')
-m  = [256,128];
+m  = [256,128]/4;
 xc = getCellCenteredGrid(omega,m);
 Tc = imgModel(T,omega,xc);
 
@@ -50,5 +50,4 @@ FAIRfigure(2,'figname',mfilename); clf;
 viewImage(Tc,omega,m);
 title(lblstr('lowres',m),'fontsize',20);  set(gca,'fontsize',20);
 
-echo off
 %==============================================================================

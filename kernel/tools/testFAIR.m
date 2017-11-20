@@ -1,51 +1,78 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
-% For details see 
+% FAIR - Flexible Algorithms for Image Registration.
+% For details see
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 %==============================================================================
 % This is the main testing file
 %==============================================================================
-clc;
-cd(FAIRpath);
-FAIRtestPara('set',...
-  'FAIRedit','off',...
-  'FAIRcompile','off',...
-  'FAIRignoreCompiles','on',...
-  'FAIRrun','on',...
-  'FAIRrange','full',...
-  'FAIRextension','all',...
-  'FAIRfilter','',...
-  'FAIRerror','off',...
-  'FAIRkeyboard','off');
 
-FAIRtestPara('disp');
+clear; clc;
 
-%% remove contents of temp folder
-if 1,
-  cdAct = pwd;
+FAIRtestStatus = getappdata(0,'FAIRtestStatus')
+
+if isempty(FAIRtestStatus),
+  FAIRtestStatus = struct(...
+    'FAIRedit','off',...
+    'FAIRcompile','on',...
+    'FAIRrun','on',...
+    'FAIRclearTemp','on'...
+    );
+  setappdata(0,'FAIRtestStatus',FAIRtestStatus);
+  return;
+end;
+
+% clear editor files
+if 0,
+  allOpenFiles = matlab.desktop.editor.getAll'; % Array of open files
+  fileNames = {allOpenFiles.Filename}';         % Extract file names
+  K = not(strcmp([mfilename('fullpath'),'.m'],fileNames));
+  allOpenFiles(K).close;
+end;
+
+% remove contents of temp folder
+if strcmp(FAIRtestStatus.('FAIRclearTemp'),'on'),
   cd(fullfile(FAIRpath,'temp'))
   files = dir;
   J = find(not([files(:).isdir]));
-  
   for j=J
     delete(files(j).name);
   end;
-  cd(cdAct);
+  FAIRtestStatus.('FAIRclearTemp') = 'off'
+  setappdata(0,'FAIRtestStatus',FAIRtestStatus);
+  return;
 end;
 
-testData
-testImgModels
-testTransformations
-testLandmarks
-testDistances
-testRegularizers
-testMatrixFree
-testNumerics
-testExamples
-testViewer
-testTools
+cd(FAIRpath);
+
+dbstop in FAIRpause at 29
+
+tests = {
+  'testData'
+  'testImgModels'
+  'testTransformations'
+  'testLandmarks'
+  'testDistances'
+  'testRegularizers'
+  'testMatrixFree'
+  'testNumerics'
+  'testExamples'
+  'testViewer'
+  'testTools'
+  }
+
+
+for k=1:length(tests)
+  edit(tests{k});
+  %run(tests{k});
+%   return
+end;
+
+% 
+% 
+% 
+% 
 
 %==============================================================================
 

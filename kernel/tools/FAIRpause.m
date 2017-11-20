@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -10,6 +10,7 @@
 % used in the testing environment
 %==============================================================================
 function FAIRpause(varargin)
+
 
 if nargin==1 && isstr(varargin{1}) % activate/deactivate pause status globally
     if strcmp(varargin{1},'off')
@@ -25,14 +26,13 @@ if nargin==1 && isstr(varargin{1}) % activate/deactivate pause status globally
     return
 end
 
-FAIRpause = getappdata(0,'FAIRpause');
-if isempty(FAIRpause)
-    FAIRpause = 'on';
-end
+FAIRtestStatus = getappdata(0,'FAIRtestStatus');
 
-if strcmp(FAIRpause,'on')
-    builtin('pause',varargin{:});
-else
-%     fprintf('FAIRpause=%s\n',FAIRpause);
-end
+if isfield(FAIRtestStatus,'FAIRrun') ...
+    & strcmp(FAIRtestStatus.('FAIRrun'),'on')
+  fprintf('FAIRrun == ''on'' => no pause %s\n',mfilename);
+  return;
+end;
+
+builtin('pause',varargin{:});
 %==============================================================================
