@@ -27,7 +27,7 @@ elseif nargin == 1,
 end;
 
 fprintf('%%----- %-24s %-30s',[varargin{1},':'],varargin{2});
-if (status==1),
+if strcmp(status,'on'),
   status = input('<0,1> : ');
 else
   status = varargin{3}

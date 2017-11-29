@@ -19,6 +19,8 @@ setup2DUSData;
 wc = [1 -0.2 50, 0, 0.75 50]'; 
 xc = getCellCenteredGrid(omega,m);  
 yc = affine2D(wc,xc);
-Tc = linearInter(dataT,omega,yc);
-FAIRfigure(2); viewImage2D(Tc,omega,m,'colormap','gray(256)'); 
+Tx = linearInter(dataT,omega,xc);
+Ty = linearInter(dataT,omega,yc);
+FAIRfigure(1); viewImage2D(Tx,omega,m,'colormap','gray(256)'); 
+FAIRfigure(2); viewImage2D(Ty,omega,m,'colormap','gray(256)'); 
 %==============================================================================

@@ -10,7 +10,7 @@
 
 clear; clc;
 
-FAIRtestStatus = getappdata(0,'FAIRtestStatus')
+FAIRtestStatus = getappdata(0,'FAIRtestStatus');
 
 if isempty(FAIRtestStatus),
   FAIRtestStatus = struct(...
@@ -33,6 +33,7 @@ end;
 
 % remove contents of temp folder
 if strcmp(FAIRtestStatus.('FAIRclearTemp'),'on'),
+  fprintf('clear folder <%s>\n',fullfile(FAIRpath,'temp'))
   cd(fullfile(FAIRpath,'temp'))
   files = dir;
   J = find(not([files(:).isdir]));
