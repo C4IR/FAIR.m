@@ -109,6 +109,11 @@ if nargin>2 && ischar(varargin{1})
       end;
       return
     
+    case 'optn',
+      [method,optn] = getOption(optn,caller);
+      method = optn;
+      return;
+      
     otherwise, 
       stop = 0;
     
