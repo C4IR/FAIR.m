@@ -133,7 +133,8 @@ FAIRmessage('=');
 
 function [C,OK] = sortFiles(list)
 
-ext = {'.cpp','.c','.h','.o',['.',mexext],'.mexa64','.mat','.jpg','.m'};
+mexall = mexext('all');
+ext = [{'.cpp','.c','.h','.o','.mat','.jpg','.m'}, strcat({'.'}, {mexall.ext})];
 C = []; R = 1:length(list);
 for p=1:length(ext),
   K = find(strcmp(list,ext{p}));
@@ -142,6 +143,6 @@ for p=1:length(ext),
 end;
 OK = isempty(R);
 for k=1:length(R)
-  fprintf(' - %d-of-%d, unknown extension [%s]\n',j,length(R),list{R(k)} )
+  fprintf(' - %d-of-%d, unknown extension [%s]\n',k,length(R),list{R(k)} )
 end;
 %==============================================================================
