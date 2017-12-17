@@ -29,10 +29,10 @@ else
   coeff = @(Tdata,dim) getSplineCoefficients(Tdata,'dim',dim);
 end
 
-fprintf(2,'%s: test implementation of <%s>, run minimal examples\n',...
+fprintf(1,'%s: test implementation of <%s>, run minimal examples\n',...
   mfilename,file)
 
-fprintf(2,'check <%s> on 1D example\n',file);
+fprintf(1,'check <%s> on 1D example\n',file);
 Tdata     = [0,1,4,1,0];
 omega     = [0,10];
 m         = length(Tdata);
@@ -51,7 +51,7 @@ spy(dT);
 title('dT')
 
 
-fprintf(2,'check <%s> on 2D example\n',mfilename);
+fprintf(1,'check <%s> on 2D example\n',mfilename);
 omega = [0,10,0,8];
 Tdata = [1,2,3,4;1,2,3,4;4,4,4,4]; m = size(Tdata);
 Tcoef = coeff(Tdata,2);
@@ -69,7 +69,7 @@ subplot(1,2,2); spy(dT);
 title('dT')
 
 
-fprintf(2,'check <%s> on 3D example\n',mfilename);
+fprintf(1,'check <%s> on 3D example\n',mfilename);
 omega = [0,1,0,2,0,1]; m = [13,16,7];
 Xdata    = getCellCenteredGrid(omega,m);
 Y     = reshape(Xdata,[m,3]);
@@ -84,7 +84,7 @@ title(sprintf('%s %d-dim',file,3));
 subplot(1,2,2); spy(dT);                 
 title('dT')
 
-fprintf(2,'run derivative test for <%s> (note: needs to fail)\n',mfilename);
+fprintf(1,'run derivative test for <%s> (note: needs to fail)\n',mfilename);
 fctn = @(xc) feval(file,Tcoef,omega,xc);
 xc   = xc + rand(size(xc));
 FAIRfigure(4);
