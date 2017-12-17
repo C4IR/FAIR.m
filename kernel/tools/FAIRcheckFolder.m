@@ -95,9 +95,10 @@ end;
 % 
 % if strcmp(FAIRignoreCompiles,'on')
 %   ignore = zeros(length(credit),1);
+%   mexall = mexext('all');
 %   for k=1:length(credit)
 %     [~,~,ext] = fileparts(credit{k});
-%     ignore(k) =  any(strcmp(ext,{'.o',['.',mexext]}));
+%     ignore(k) =  any(strcmp(ext,[{'.o'},strcat({'.'}, {mexall.ext})]));
 %   end;
 %   credit(find(ignore)) = [];    
 % end;
@@ -113,7 +114,7 @@ if addons>0,
   % keyboard
 end;
 
-% merge debit and andons, sort by type
+% merge debit and addons, sort by type
 files = {debit{:},credit{:}};
 ext           = @(str) str(max(1,find(str=='.',1,'last')):end);
 extensions    = cellfun(ext,files','UniformOutput',0)';

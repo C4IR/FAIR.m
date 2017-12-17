@@ -60,7 +60,7 @@ end;
 %------------------------------------------------------------------------------
 % main loop, run over all files
 %------------------------------------------------------------------------------
-
+mexall = mexext('all');
 for j=1:length(FAIRtestStatus.(caller))
   name  = FAIRtestStatus.(caller)(j).name;
   check = FAIRtestStatus.(caller)(j).check;
@@ -80,10 +80,10 @@ for j=1:length(FAIRtestStatus.(caller))
       case '.m',
         OK = 1;
         if strcmp(FAIRtestStatus.('FAIRrun'),'on'),
-          OK = FAIReval(FAIRtestStatus.(caller)(j).name);
+          OK = FAIReval(name);
         end;
-        if strcmp(FAIRtestStatus.('FAIRedit'),'on') || not(OK),
-          FAIRopen(FAIRtestStatus.(caller)(j).name);
+        if strcmp(FAIRtestStatus.('FAIRedit'),'on') || OK==0,
+          FAIRopen(name);
         end;
       case {'.cpp','.c'},
         if strcmp(FAIRtestStatus.('FAIRcompile'),'on'),
@@ -91,10 +91,10 @@ for j=1:length(FAIRtestStatus.(caller))
         else
           OK = 1;
         end;
-      case {'.h','.o',lower(['.',mexext])},
+      case {'.h','.o'},
         OK = 1;
 
-      case {'.mexa64'},
+      case strcat({'.'}, {mexall.ext}),
         OK = 3;
 
         
@@ -111,10 +111,10 @@ end;
 J = find([FAIRtestStatus.(caller)(:).check] <= 0);
 
 if length(J)>0,
-  fprintf('none performimg files:\n');
+  fprintf('non-performing files:\n');
   for j=J
     fprintf('  - %4d-of-%4d %-30s\n',...
-      j,length(J),FAIRtestStatus.(caller)(j).name);
+      j,length(FAIRtestStatus.(caller)),FAIRtestStatus.(caller)(j).name);
   end;
 end;
 
@@ -148,7 +148,7 @@ try
   eval(sprintf('dbclear in %s',file))
   run(file);
   OK = 1;
-catch
+catch e
   fprintf('file does not run without errors\n');
   OK = -10;
 end;
