@@ -58,6 +58,7 @@ if isnumeric(df),
   dvf = df*v; 
 elseif isa(df,'function_handle'),
   dvf = df(v);
+  if isrow(dvf); dvf = dvf'; end; 
 else
   keyboard;
 end;
