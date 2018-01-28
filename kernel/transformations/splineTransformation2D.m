@@ -44,12 +44,12 @@ end;
 
 if isempty(w) || (size(Q,1) ~= numel(x)) || (size(Q,2) ~= numel(w)),
   % it is assumed that x is a cell centered grid, extract xi1 and xi2
-  dim = size(omega,2)/2
-  n   = numel(x)/dim
+  dim = size(omega,2)/2;
+  n   = numel(x)/dim;
   if n == prod(m)
     q = m;
   elseif n == prod(m+1)
-    q = m+1
+    q = m+1;
   else
     error('can not handle this grid')
   end;
