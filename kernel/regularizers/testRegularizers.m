@@ -7,7 +7,7 @@
 %==============================================================================
 % This is a testing environment for the files in the folder
 % kernel/regularizers
-% 1. Based on data/contents, a list of required files is generated and it 
+% 1. Based on regularizers/contents.m, a list of required files is generated and it 
 %    is verified, that all files are present; additional files are listed.
 % 2. All c-files are compiled.
 % 3. All files are executed.
@@ -150,7 +150,7 @@ for k=1:length(Regs),
       'significant difference between matrix-based and matrix free code');
     
     % test dericatives
-    fprintf('test deivative of [%s]\n',regularizer);
+    fprintf('test derivative of [%s]\n',regularizer);
     
     fctn = @(Y) regularizer(Y,omega,m);
     checkDerivative(fctn,Y);
