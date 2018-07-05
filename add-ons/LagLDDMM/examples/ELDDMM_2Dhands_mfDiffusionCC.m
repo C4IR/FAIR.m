@@ -25,7 +25,7 @@ setup2DhandData
 %% run affine pre-registration
 imgModel('reset','imgModel','splineInterMex','regularizer','moments','theta',.1);
 
-alpha = [300 0];
+alpha = [1000 0];
 parametric = 1;
 mV     = @(m) ceil(1*m);
 nt = 0;
