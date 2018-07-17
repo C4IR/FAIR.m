@@ -35,7 +35,7 @@
 %
 %  doDerivative - compute derivative w.r.t. velocity
 %  tspan        - time interval (default: [0 1]) 
-%  N            - number of time steps (default: 5)
+%  N            - number of time discretization points (nodal) (default: 5)
 %  storeInter   - store intermediate transformation (e.g., for visualization)
 %
 % Output:
@@ -63,7 +63,7 @@ end;
 if isempty(omega) || isempty(m)
     error('%s - omega and m must be provided through varargin or trafo(''set'',''omega'',omega,''m'',m')
 end
-dt   = (tspan(2)-tspan(1))/N; % note dt is negatave when going backwards in time
+dt   = (tspan(2)-tspan(1))/(N-1); % note dt is negatave when going backwards in time
 dy = [];
 if doDerivative
     dy = sparse(numel(yc),numel(vc));
@@ -80,7 +80,6 @@ if storeInter
     para.YC = zeros(numel(yc),N);
     para.YC(:,1) = yc;
 end
-
 for k=1:N-1
     [vi,dvidy] = linearInterGrid(vc,omega,m,yc,'doDerivative',doDerivative);
     if doDerivative
@@ -108,7 +107,6 @@ for k=1:N-1
     end
     ytemp = ytemp + 2*vi;
     yi    = yc + dt*vi;
-
     [vi,dvidy] = linearInterGrid(vc,omega,m,yi,'doDerivative',doDerivative);
     if doDerivative
         Ty = getLinearInterGridMatrix(omega,m,yi);

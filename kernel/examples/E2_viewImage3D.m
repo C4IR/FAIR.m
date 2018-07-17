@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -41,15 +41,10 @@ volView(T,omega,m,'facecolor',[240,140,100]/256,'facealpha',0.75); hold on;
 colormap(gray(100))
 vh = viewSlices(T,omega,m);
 
-FAIRfigure(4); clf; colordef(gcf,'black');
-volView(T,omega,m,'facecolor',[240,140,100]/256,'facealpha',0.5); hold on;
-colormap(gray(100))
-vh = viewSlices(T,omega,m);
-ah = viewSlices(T,omega,m,'s1',64,'s2',64,'s3',[]);
-
+%%
+FAIRfigure(4); clf; colordef(gcf,'black'); colormap(gray(100));
 for j=1:m(3);
-  set(vh,'visible','off');
-  vh = viewSlices(T,omega,m,'s1',[],'s2',[],'s3',[j]);
+  vh = viewSlices(T,omega,m,'s1',64,'s2',64,'s3',[j]);
   FAIRpause(1/10);
 end;
 echo off

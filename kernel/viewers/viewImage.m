@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -31,7 +31,7 @@
 function varargout = viewImage(varargin)
 
 persistent OPTN 
-[method,OPTN,task,stop] = dealOptions(OPTN,varargin{:});
+[method,OPTN,task,stop] = dealOptions(mfilename,OPTN,varargin{:});
 if stop,
   varargout{1} = method;
   if nargout > 1, varargout{2} = OPTN;  end;
@@ -39,7 +39,7 @@ if stop,
 end
 
 % update options and split
-[method,optn] = dealOptions(OPTN,'set',varargin{4:end});
+[method,optn] = dealOptions(mfilename,OPTN,'set',varargin{4:end});
 if isempty(method), error('no method specified!'); end;
 
 
@@ -72,7 +72,7 @@ if OK('invert'),
 end;
 
 % shortcut to value of option str
-value = @(str) dealOptions(optn,'get',str);
+value = @(str) dealOptions(mfilename,optn,'get',str);
 
 % setup figure
 fig = value('fig');
@@ -105,7 +105,7 @@ for k=1:length(internals),
 end;
 
 % transfer struct optn back to list
-[dummy,optn] = dealOptions(optn);
+[dummy,optn] = dealOptions(mfilename,optn);
 
 % call the viewer with remaining options
 switch nargout,

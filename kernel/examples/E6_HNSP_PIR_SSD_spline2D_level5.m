@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -37,7 +37,7 @@ FAIRplots('reset','mode','PIR-spline','omega',omega,'m',m,'fig',1,'plots',1);
 FAIRplots('init',struct('Tc',T,'Rc',R,'omega',omega,'m',m)); 
 
 % ----- call Gaus-Newton ------------------------------------
-GNoptn = {'maxIter',50,'Plots',@FAIRplots};
+GNoptn = {'maxIter',50,'Plots',@FAIRplots,'solver','backslash'};
 fctn  = @(wc) PIRobjFctn(T,Rc,omega,m,0,[],[],xc,wc);
 [wc,his] = GaussNewton(fctn,w0,GNoptn{:});
 

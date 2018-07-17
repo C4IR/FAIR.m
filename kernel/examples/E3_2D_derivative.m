@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -16,7 +16,7 @@
 % - compute interpolants and check derivative
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
 
 %% exploring the derivatives of different interpolants for data given by USfair.jpg
 fprintf('%s\n','load data')
@@ -52,5 +52,5 @@ for j=1:length(methods),
   ylabel(sprintf('[%s], based on X+noise',imgModel));
   FAIRpause;
 end;
-echo off
+
 %==============================================================================

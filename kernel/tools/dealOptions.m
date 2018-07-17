@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -53,11 +53,11 @@
 %==============================================================================
 
 
-function [method,optn,task,stop] = dealOptions(optn,varargin)
+function [method,optn,task,stop] = dealOptions(caller,optn,varargin)
 
 method = [];                    % initialize method
-caller = dbstack;               % identify the name of the calling function
-caller = caller(min(length(caller),2)).name;
+% caller = dbstack;               % identify the name of the calling function
+% caller = caller(min(length(caller),2)).name;
 
 task   = [];
 stop   = 1;
@@ -75,7 +75,7 @@ end;
 
 % check whether work is to be done here, i.e. the first input argument 
 % varargin{1} is a str
-if nargin>1 && ischar(varargin{1})
+if nargin>2 && ischar(varargin{1})
 
   task        = varargin{1};
   varargin(1) = [];
@@ -109,6 +109,11 @@ if nargin>1 && ischar(varargin{1})
       end;
       return
     
+    case 'optn',
+      [method,optn] = getOption(optn,caller);
+      method = optn;
+      return;
+      
     otherwise, 
       stop = 0;
     
@@ -120,7 +125,7 @@ if nargin>1 && ischar(varargin{1})
 else
 
   [method,optn] = getOption(optn,caller);
-  stop = (nargin == 1);
+  stop = (nargin < 3);
   return;
 
 end;

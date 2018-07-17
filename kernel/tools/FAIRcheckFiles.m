@@ -1,12 +1,12 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
-% For details see 
+% FAIR - Flexible Algorithms for Image Registration.
+% For details see
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
-% For details see 
+% FAIR - Flexible Algorithms for Image Registration.
+% For details see
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 %==============================================================================
@@ -16,116 +16,107 @@
 %
 %==============================================================================
 
-function fileOK =checkFiles(folder,files,caller,varargin)
+function FAIRcheckFiles(caller)
 
 if nargin == 0,
-  return;
+  FAIRtestStatus = getappdata(0,'FAIRtestStatus');
+  caller = FAIRtestStatus.('caller');
 end;
 
-FAIRtestPara('set',varargin{:})
-FAIRtestPara('disp');
-FAIRedit     = FAIRtestPara('get','FAIRedit');
-FAIRcompile  = FAIRtestPara('get','FAIRcompile');
-FAIRrun      = FAIRtestPara('get','FAIRrun');
-FAIRkeyboard = FAIRtestPara('get','FAIRkeyboard');
-FAIRerror    = FAIRtestPara('get','FAIRerror');
+FAIRtestStatus = getappdata(0,'FAIRtestStatus');
+FAIRtestStatus.('caller') = caller;
+FAIRtestStatus.('folder') = fileparts(which(caller))
 
-fprintf('%s: folder = <%s>\n',mfilename,folder);
-fprintf('%-20s: %s\n','range',sprintf('%d files',length(files)));
+if not(isfield(FAIRtestStatus,caller))
+  FAIRtestStatus.(caller) = {};
+end;
 
-% dusplay files to be processed
-for j=1:length(files),
-  fprintf('  - %4d-of-%4d %-30s\n',j,length(files),files{j});
+if isempty(FAIRtestStatus.(caller)),
+  FAIRtestStatus.(caller) = FAIRcheckFolder(FAIRtestStatus.('folder'));
+  shortname = @(x) x(max(0,find(x == filesep,1,'last'))+1:end-2);
+  filename  = cellfun(shortname,{FAIRtestStatus.(caller)(:).name},'UniformOutput',0);
+  
+  excludes = {...
+    caller,...
+    'testFAIR',...
+    'FAIRcheckFolder',...
+    'FAIRcheckFiles',...
+    'testEnd',...
+    'getLandmarks'};
+  
+  for j=1:length(excludes)
+    C     = find(strcmp(filename,excludes{j}));
+    if ~isempty(C),
+      FAIRtestStatus.(caller)(C).check = 2;
+    end;
+  end,
+  setappdata(0,'FAIRtestStatus',FAIRtestStatus);
+end;
+
+if strcmp(FAIRtestStatus.('FAIRcompile'),'on'),
+  FAIRmake(FAIRtestStatus.('folder'))
 end;
 
 %------------------------------------------------------------------------------
 % main loop, run over all files
 %------------------------------------------------------------------------------
-fileOK = ones(length(files),1);
-for j=1:length(files),
 
-  file = files{j};
-  ext  = file(max(1,find(file=='.',1,'last')):end);
+for j=1:length(FAIRtestStatus.(caller))
+  name  = FAIRtestStatus.(caller)(j).name;
+  check = FAIRtestStatus.(caller)(j).check;
+  [~,file,ext] = fileparts(name);
   
-  FAIRmessage('=');
-  fprintf(2,'  - %4d-of-%4d %-30s\n',j,length(files),files{j});
-  FAIRmessage('=');
+  fprintf('%3d-of-%d %-40s : check = %3d\n',...
+    j,length(FAIRtestStatus.(caller)),[file,ext],check);
   
-  if strcmp([caller,'.m'],file),
-    ext = 1;
-  end;
-  
-  switch ext,
-    case 1,
-      fprintf('do not execute the caller <%s>\n',file)
-      OK = 1;
-    case '.mat',    OK = FAIRload(file);
-    case '.jpg',    OK = FAIRjpg(file);
-    case '.m',  
-      OK = 1;
-      if strcmp(FAIRrun,'on'),
-        OK = FAIReval(fullfile(folder,file));
-      end;
-      if strcmp(FAIRedit,'on') || not(OK),
-        FAIRopen(fullfile(folder,file));
-      end;
-    case {'.cpp','.c'},
-      if strcmp(FAIRcompile,'on'),
-        OK = FAIRbuild(file);
-      else
+  if check == 1 | check == 2 | check == 3,
+    builtin('pause',0.1);
+  else
+    file = [file,ext];
+    
+    switch ext,
+      case '.mat',    OK = FAIRload(file);
+      case '.jpg',    OK = FAIRjpg(file);
+      case '.m',
         OK = 1;
-      end;
-    case {'.h','.o',lower(['.',mexext])},
-      OK = 1;
-      
-    otherwise,
-      ext
-      keyboard
-      error('unkown filetype');
-  end;
-  
-  fileOK(j) = OK;
-  if not(OK)
-    fprintf(2,'file <%s> does not perform and error mode is [%s]\n',...
-      file,FAIRerror);
-    if strcmp(FAIRerror,'on'),
-      error('break')
+        if strcmp(FAIRtestStatus.('FAIRrun'),'on'),
+          OK = FAIReval(FAIRtestStatus.(caller)(j).name);
+        end;
+        if strcmp(FAIRtestStatus.('FAIRedit'),'on') || not(OK),
+          FAIRopen(FAIRtestStatus.(caller)(j).name);
+        end;
+      case {'.cpp','.c'},
+        if strcmp(FAIRtestStatus.('FAIRcompile'),'on'),
+          OK = FAIRbuild(file);
+        else
+          OK = 1;
+        end;
+      case {'.h','.o',lower(['.',mexext])},
+        OK = 1;
+
+      case {'.mexa64'},
+        OK = 3;
+
+        
+      otherwise,
+        ext
+        error('12');
     end;
-  end;
-%   assert( OK == 1, ...
-%     sprintf('file  %4d-of-%4d <%s> has problems',j,length(files),file) );
-  if ~OK,
-    sprintf('file  %4d-of-%4d <%s> has problems',j,length(files),file);
-  end;
-  
-  if strcmp(FAIRkeyboard,'on'),
-    fprintf('[keyboard=''on'', see testStart for options]\n')
-    keyboard;
-  end;
-  
-end;
-%------------------------------------------------------------------------------
-
-
-% display performing files
-J = find(fileOK == 1);
-if length(J) > 0,
-  fprintf(2,'performing files:\n')
-  for j=1:length(J)
-    fprintf('  - %4d-of-%4d %-30s\n',j,length(J),files{J(j)});
+    
+    FAIRtestStatus.(caller)(j).check = OK;
+    setappdata(0,'FAIRtestStatus',FAIRtestStatus);
   end;
 end;
 
-% display non-performing files
-J = find(fileOK == 0);
-if length(J) > 0,
-  fprintf(2,'non-performing files:\n')
-  for j=1:length(J)
-    fprintf(2,'  - %4d-of-%4d %-30s\n',j,length(J),files{J(j)});
+J = find([FAIRtestStatus.(caller)(:).check] <= 0);
+
+if length(J)>0,
+  fprintf('none performimg files:\n');
+  for j=J
+    fprintf('  - %4d-of-%4d %-30s\n',...
+      j,length(J),FAIRtestStatus.(caller)(j).name);
   end;
 end;
-FAIRmessage('=');
-builtin('pause',1)
 
 %------------------------------------------------------------------------------
 function OK = FAIRload(file)
@@ -134,20 +125,19 @@ try
   load(file)
   OK = 1;
 catch
-  OK = 0;
+  OK = -1;
 end;
 %------------------------------------------------------------------------------
 function OK = FAIRjpg(file)
 try
   B = imread(file);
-  figure(1); 
+  figure(1); clf;
   set(1,'position',[3400 900 500 500]);
-clf;
   imagesc(B); axis image
   builtin('pause',1)
   OK = 1;
 catch
-  OK = 0;
+  OK = -1;
 end;
 %------------------------------------------------------------------------------
 
@@ -155,11 +145,12 @@ function OK = FAIReval(file)
 % clear = @()         fprintf(2,'clear has been disabled for auto-testing\n');
 file = file(1:end-2);
 try
+  eval(sprintf('dbclear in %s',file))
   run(file);
   OK = 1;
 catch
   fprintf('file does not run without errors\n');
-  OK = 0;
+  OK = -10;
 end;
 %------------------------------------------------------------------------------
 function OK = FAIRbuild(file)
@@ -167,7 +158,7 @@ try
   FAIRmake(file)
   OK = 1;
 catch
-  OK = 0;
+  OK = -1;
 end;
 %------------------------------------------------------------------------------
 function OK = FAIRopen(file)
@@ -175,6 +166,6 @@ try
   edit(file)
   OK = 1;
 catch
-  OK = 0;
+  OK = -1;
 end
 %==============================================================================

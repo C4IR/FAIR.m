@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -47,6 +47,7 @@ end
 spacing   = [1,1,1]; % plot every spacing(j) grid line in dimensionj
 color     = 'b';     % default color
 linewidth = 1;       % default linewidth
+axis      = 'none';
 
 for k=1:2:length(varargin),         % overwrites default parameter
   eval([varargin{k},'=varargin{',int2str(k+1),'};']);

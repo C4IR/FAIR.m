@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -14,7 +14,8 @@
 % - compute interpolants Tfctn(x) = spline(TD,omega,x) and check derivative
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
+setBreakpoint(mfilename,{29,51,65});
 
 %% setup data
 fprintf('%s\n','generate data');
@@ -45,7 +46,6 @@ axis([omega(1)-1,omega(2)+1,min(dataT)-1,max(dataT)+1]);
 xFine = getCellCenteredGrid(omega,101);
 ph(3) = plot(xFine,Tspline(xFine),'b-','linewidth',3);
 lstr = {'location','data','T'}; legend(ph,lstr,'location','northeast');
-FAIRpause;
 
 %% play with derivatives: get some interestin points
 yc = getCellCenteredGrid(omega,9);
@@ -60,7 +60,6 @@ for j=1:length(yc),
 end;
 lstr{end+1}= 'derivative';
 legend([ph;qh(end)],lstr,'location','northeast')
-FAIRpause;
 
 % the ultimative derivative check: for MATLAB and FAIR
 x = omega(1)+diff(omega)*randn(15,1);
@@ -73,5 +72,4 @@ checkDerivative(Tspline,x,'fig',3);
 ylabel('FAIR spline interpolation','fontsize',30);
 set(gca,'fontsize',30);
 
-echo off
 %==============================================================================

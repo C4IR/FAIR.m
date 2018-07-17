@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -12,11 +12,6 @@
 % 3. All files are executed.
 %==============================================================================
 
-folder = fileparts(which(mfilename));
-
-FAIRtestPara('set','FAIRcompile','off','FAIRedit','off','FAIRrange','full');
-% FAIRtestPara('disp');
-files = testStart(folder);
+FAIRcheckFiles(mfilename);
 testEnd
-
 %==============================================================================

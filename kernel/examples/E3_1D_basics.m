@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -19,8 +19,8 @@
 % ==============================================================================
 
 clear, %close all, 
-help(mfilename); echo on
-
+help(mfilename);
+setBreakpoint(mfilename,{52,62,69})
 %% setup data
 fprintf('%s\n','generate 1D data');
 
@@ -47,7 +47,6 @@ FAIRfigure(1); clf;
   axis([omega(1)-1,omega(2)+1,min(dataT)-1,max(dataT)+1]);
   lstr = {'location','data'}; legend(ph,lstr,'location','Northeast');
   
-FAIRpause;
 
 %% discretization for the visualization of the interpolant
 m  = 101; % discretization for the model
@@ -58,14 +57,13 @@ fprintf('%s\n','MATLAB interpolation')
 Tc = interp1(dataX,dataT,xc,'linear'); Tc(isnan(Tc)) = 0;
 lstr{3} = 'MATLAB'; ph(3) = plot(xc,Tc,'b-','linewidth',3); 
 legend(ph,lstr,'location','Northeast')
-FAIRpause;
 
 %% interpolation using FAIR-linear
 fprintf('%s\n','FAIR linear interpolation')
 Tc = linearInter(dataT,omega,xc);
 lstr{4} = 'linear'; ph(4) = plot(xc,Tc,'r-','linewidth',3);
 legend(ph,lstr,'location','northeast')
-FAIRpause;
+
 
 %% interpolation using FAIR-apline
 fprintf('%s\n','FAIR spline interpolation')
@@ -74,5 +72,4 @@ Tc = splineInter(Tcoeff,omega,xc);
 lstr{5} = 'spline'; ph(5) = plot(xc,Tc,'g-','linewidth',3);
 legend(ph,lstr,'location','northeast')
 
-echo off
 %==============================================================================

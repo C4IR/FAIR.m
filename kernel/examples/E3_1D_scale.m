@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -18,7 +18,8 @@
 % - compute approximations (spline, various theta's) and visualize
 %==============================================================================
 
-clear, close all, help(mfilename); echo on
+clear, close all, help(mfilename); 
+setBreakpoint(mfilename,{27,39,69});
 
 %% setup data 
 fprintf('%s\n','generate noisy data ');
@@ -33,7 +34,6 @@ ph = plot(dataX,0*dataT,'k.',dataX,dataT,'b.','markersize',30); hold on;
 title('1D multiscale','fontsize',20);
 axis([omega(1)-1,omega(2)+1,min(dataT)-1,max(dataT)+1]);
 lstr = {'location','data'}; legend(ph,lstr,'location','northwest');
-FAIRpause;
 
 %% discretization for the model  -----------------------------------------------
 m  = 101; % discretization for the model, h=omega./m
@@ -63,17 +63,17 @@ for j=1:length(theta),
     FAIRpause; 
   end;
 end;
-fprintf('\n'); FAIRpause;
+fprintf('\n'); 
 
 % show results for various theta's: coarse to fine scale
 for j=length(theta):-1:1,
   fprintf('.');
   set(qh,'visible','off');
   qh = plot(xc,Tc(theta(j)),'g-','linewidth',3);
-  ylabel(sprintf('\\theta=%s',num2str(theta(j))),'fontsize',20); FAIRpause(1/10)
+  ylabel(sprintf('\\theta=%s',num2str(theta(j))),'fontsize',20); 
+  FAIRpause(1/10)
   if j==1, FAIRpause; end;
 end;
 fprintf('\n'); 
 
-echo off
 %==============================================================================

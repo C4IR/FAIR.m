@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -35,14 +35,14 @@ function varargout = trafo(varargin)
 
 persistent OPTN 
 
-if nargin == 0 && nargout == 0 && isempty(OPTN),
+if nargin == 0 && nargout == 0 % && isempty(OPTN),
   help(mfilename);
   runMinimalExample;
   return;
 end;
 
 % handle options
-[method,OPTN,task,stop] = dealOptions(OPTN,varargin{:});
+[method,OPTN,task,stop] = dealOptions(mfilename,OPTN,varargin{:});
 if stop,
   varargout{1} = method;
   if any(strcmp(task,{'reset','set'})), trafo('w0'); end; % clear Q
@@ -58,8 +58,8 @@ if strcmp(task, 'w0'),
 end;
 
 % do the work
-[method,optn] = dealOptions(OPTN,'set','doDerivative',(nargout>1),varargin{3:end});
-doDerivative  = dealOptions(optn,'get','doDerivative');
+[method,optn] = dealOptions(mfilename,OPTN,'set','doDerivative',(nargout>1),varargin{3:end});
+doDerivative  = dealOptions(mfilename,optn,'get','doDerivative');
 w = varargin{1};
 x = varargin{2};
 if ~doDerivative,
@@ -70,7 +70,7 @@ end;
 
 
 [y,dy] = feval(method,w,x,optn{:});
-if ~strcmp(dealOptions(optn,'get','debug'),'on'), 
+if ~strcmp(dealOptions(mfilename,optn,'get','debug'),'on'), 
   varargout = {y,dy};
   return; 
 end;

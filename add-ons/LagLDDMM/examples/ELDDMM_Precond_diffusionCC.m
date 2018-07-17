@@ -26,7 +26,7 @@ imgModel('reset','imgModel','splineInterMex','regularizer','moments','theta',.1)
         trafo('set','trafo','affine2D');
         distance('set','distance','SSD');
 
-alpha = [4e2 0];
+alpha = [6e2 0];
 parametric = 0;
 pad  = 0.5;
 nt = 0;

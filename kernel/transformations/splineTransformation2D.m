@@ -1,6 +1,6 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-%  FAIR - Flexible Algorithms for Image Registration. 
+% FAIR - Flexible Algorithms for Image Registration. 
 % For details see 
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
@@ -44,9 +44,19 @@ end;
 
 if isempty(w) || (size(Q,1) ~= numel(x)) || (size(Q,2) ~= numel(w)),
   % it is assumed that x is a cell centered grid, extract xi1 and xi2
-  x  = reshape(x,[m,2]);
-  Q1 = getQ1d(omega(1:2),m(1),p(1),x(:,1,1));
-  Q2 = getQ1d(omega(3:4),m(2),p(2),x(1,:,2));
+  dim = size(omega,2)/2
+  n   = numel(x)/dim
+  if n == prod(m)
+    q = m;
+  elseif n == prod(m+1)
+    q = m+1
+  else
+    error('can not handle this grid')
+  end;
+  
+  x  = reshape(x,[q,2]);
+  Q1 = getQ1d(omega(1:2),q(1),p(1),x(:,1,1));
+  Q2 = getQ1d(omega(3:4),q(2),p(2),x(1,:,2));
   Q  = kron(speye(2),kron(sparse(Q2),sparse(Q1)));
   if nargout == 0, return; end;
 end;
