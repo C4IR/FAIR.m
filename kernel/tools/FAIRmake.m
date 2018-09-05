@@ -54,6 +54,13 @@ folder = {
     'regularizers'
     };
         
+if strcmp(file,'all'),
+  for k=1:numel(folder)
+    FAIRmake(folder{k},varargin{:});
+  end;
+  return
+end;
+
 Make = @(file) make(file, overwrite, cores, verbose);
 if any(strcmp(file,folder))
     file = fullfile(FAIRpath,'kernel',file);
@@ -76,7 +83,7 @@ if exist(file) == 7, % is a folder
     ext        = @(str) str(max(1,find(str=='.',1,'last')):end);
     extensions = cellfun(ext,files','UniformOutput',0)';
     J = find( strcmp(extensions,'.cpp') | strcmp(extensions,'.c') );
-    fprintf('[%s] built %d files:\n',mfilename,length(J));
+    fprintf('[%s] built %d files in [%s]:\n',mfilename,length(J),shortname);
     for j=1:length(J),
       Make(files{J(j)});
     end;
