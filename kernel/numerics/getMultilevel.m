@@ -68,7 +68,7 @@ end;
 if ~iscell(IS), IS = {IS}; end;% in case of a single image input
 lenIS = length(IS);                 % number of images to be handled
 dim   = length(omega)/2;            % spacial dimension
-maxLevel = ceil(log2(min(m)));      % finest level
+maxLevel = ceil(log2(min(m(restrictdim==1))));      % finest level
 
 % messaging 
 msg = sprintf('%s(%d image(s), filter=%s, %dD data,level=%d:%d)',...
