@@ -12,24 +12,28 @@ setup2DGaussianData;
 
 distance('reset','distance','SSD');
 imgModel('reset','imgModel','splineInterMex','regularizer','moments','theta',4e-1);
-regularizer('reset','regularizer','mbHyperElasticFEM','alpha',5e1);
+regularizer('reset','regularizer','mbHyperElasticFEM','alpha',1e2);
 
-minLevel = 5;
-maxLevel = 7;
+minLevel = 3;
+maxLevel = 3;
 
 NPIRpara            = optPara('NPIR-GN');
 NPIRpara.Plots      = @FAIRplotsFEM;
 NPIRpara.lineSearch = @ArmijoDiffeomorphicFEM;
 NPIRpara.solver     = 'mbPCG-Jacobi';
 
-
-[yFEMPIRE,~,hisFEMPIRE] = MLIRFEM(ML,'parametric',0,...
-    'NPIRobj',@FEMPIREobjFctn,'NPIRpara',NPIRpara,...
-    'minLevel',minLevel,'maxLevel',maxLevel);
-
-[ySSD,~,hisSSD] = MLIRFEM(ML,'parametric',0,...
+[ySSD_MB,~,hisSSD_MB] = MLIRFEM(ML,'parametric',0,...
     'NPIRobj',@FEMobjFctn,'NPIRpara',NPIRpara,...
     'minLevel',minLevel,'maxLevel',maxLevel);
 
+regularizer('reset','regularizer','mfHyperElasticFEM','alpha',5e1);
+NPIRpara.solver = @FEMSSDsolveGN_PCG;
+
+[ySSD_MF,~,hisSSD_MF] = MLIRFEM(ML,'parametric',0,...
+    'NPIRobj',@FEMobjFctn,'NPIRpara',NPIRpara,...
+    'minLevel',minLevel,'maxLevel',maxLevel);
+
+relerr = norm(ySSD_MB-ySSD_MF)/norm(ySSD_MB)
+
 %%
-save('EFEM_SSDvsMP','ML','yFEMPIRE','ySSD','hisFEMPIRE','hisSSD');
+%save('EFEM_SSDvsMP','ML','yFEMPIRE','ySSD','hisFEMPIRE','hisSSD');

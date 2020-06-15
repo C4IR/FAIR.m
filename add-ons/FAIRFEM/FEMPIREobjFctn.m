@@ -75,6 +75,7 @@ m     = Mesh.m;
 yc = reshape(yc,[],dim);
 yRef = reshape(yRef,[],dim);
 doDerivative = (nargout>2);            % flag for necessity of derivatives
+matrixFree = regularizer('get','matrixFree');
 % do the work ------------------------------------------------------------
 
 % define barycentric interpolation
@@ -83,7 +84,7 @@ doDerivative = (nargout>2);            % flag for necessity of derivatives
 vol = Mesh.vol;
 
 % compute interpolated image and derivative
-[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative);
+[Tc,dT] = imgModel(T,omega,Mesh.mfPi(yc,'C'),'doDerivative',doDerivative,'matrixFree',matrixFree);
 % apply intensity modulation
 [det,dDet]  = getDeterminant(Mesh,yc,'doDerivative',doDerivative);
 Tcmod   = Tc .* det;
@@ -121,29 +122,137 @@ if not(regularizer('get','matrixFree')),
     H  = dr'*d2psi*dr + d2S;
 else
     % derivatives rather explicit
-    dr = dres*dT;
-    dD = dD*dT;
-    dJ = reshape(Mesh.mfPi(reshape(dD',[],Mesh.dim),'C'),1,[]) + dS;
+    %P  = @(x) reshape(Mesh.mfPi(reshape(x,[],dim),'C'),[],1);
+    %dTcmod = P((sdiag(det)*dT)')' + sdiag(Tc)*dDet;    
+    p = (dD(:).*det).*dT;
+    dD = reshape(Mesh.mfPi(p,'C'),1,[]) + (dDet.dDetadj(dD'.*Tc))';
+    
+    dJ = dD + dS;
     
     % approximation to d2D in matrix free mode
     % d2D   = P'*dr'*d2psi*dr*P
     % P and P' are operators matrix free
-    H.Mesh     = Mesh;
+    H.Mesh      = Mesh;
+    H.omega     = omega;
+    H.m         = m;
     H.d2D.how   = 'P''*dr''*d2psi*dr*P';
-    H.d2D.P     = @(x) Mesh.mfPi(reshape(x(:),[],Mesh.dim),'C');
-    H.d2D.dr    = dr;
+    H.d2D.P     = @(x) reshape(Mesh.mfPi(x,'C'),[],1);
+    H.d2D.Tc    = Tc;
+    H.d2D.dT    = dT;
+    H.d2D.Jac   = det;
+    H.d2D.dJac  = dDet.dDet;
+    H.d2D.dJacadj = dDet.dDetadj;
+    H.d2D.diag  = @(Mesh,yc) getDiag(Mesh,det,Tc,dT,yc);
+    H.d2D.dres  = dres;
     H.d2D.d2psi = d2psi;
+    H.solver    = d2S.solver;
     
     H.d2S = d2S;
 end;
-
 
 
 % shortcut for sparse diagonal matrix
 function A = sdiag(v)
 A = spdiags(v(:),0,numel(v),numel(v));
 
+% diagonal of hessian matrix
+% sum(sdiag(vol)dTcmod.^2,1)
+% where dTcmod = sdiag(det)*dT*P + sdiag(Tc)*dDet;
+% implemention:  sum(sdiag(vol)*(sdiag(det)*dT*P(.^2 +
+% sdiag(vol)*(sdiag(Tc)*dDet).^2,1)
+function D = getDiag(Mesh,det,Tc,dT,yc)
 
+vol = Mesh.vol;
+dim = Mesh.dim;
+
+if dim == 2
+
+    % first term
+    D1 = Mesh.mfPi(vol.*(det.*dT).^2,'C');
+    D1 = D1(:)./3;
+
+    % second term
+    dphi = Mesh.dphi;    
+    dphi1 = dphi{1}; dphi2 = dphi{2}; dphi3 = dphi{3};
+    
+    % compute diagonal of volume regularizer
+    % MB : dDet = [sdiag(By(:,4)), sdiag(-By(:,3)) , sdiag(-By(:,2)), sdiag(By(:,1))] * B;
+    [dx1, dx2] = getGradientMatrixFEM(Mesh,1);
+    yc = reshape(yc,[],2);
+    By = [dx1.D(yc(:,1))  dx2.D(yc(:,1)) dx1.D(yc(:,2)) dx2.D(yc(:,2))];
+
+    % get boundaries
+    Dxi = @(i,j) Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi1(:,i)).^2,1) ... 
+        + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi2(:,i)).^2,2) ...
+        + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi3(:,i)).^2,3); % diagonal of Dxi'*Dxi 
+
+    Dxy = @(i,j,k,l) Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi1(:,i)).*(Tc.*By(:,l).*dphi1(:,k)),1) ... % byproduct terms for verifications
+        + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi2(:,i)).*(Tc.*By(:,l).*dphi2(:,k)),2) ...
+        + Mesh.mfPi(vol.*(Tc.*By(:,j).*dphi3(:,i)).*(Tc.*By(:,l).*dphi3(:,k)),3); % diagonal of Dxi'*Dxi 
+
+    D2 = [Dxi(1,4)+ Dxi(2,3) - 2*Dxy(1,4,2,3) ;Dxi(1,2)+ Dxi(2,1) - 2*Dxy(1,2,2,1)];
+
+    % third byproduct term
+    D3 = [(Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).*Tc.*(By(:,4).*dphi1(:,1) - By(:,3).*dphi1(:,2)),1)) + ...
+          (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).*Tc.*(By(:,4).*dphi2(:,1) - By(:,3).*dphi2(:,2)),2)) + ...
+          (Mesh.mfPi(vol.*((1/3)*det.*dT(:,1)).*Tc.*(By(:,4).*dphi3(:,1) - By(:,3).*dphi3(:,2)),3)) ;...
+
+        (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).*Tc.*(By(:,1).*dphi1(:,2) - By(:,2).*dphi1(:,1)),1)) + ...
+        (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).*Tc.*(By(:,1).*dphi2(:,2) - By(:,2).*dphi2(:,1)),2)) + ...
+        (Mesh.mfPi(vol.*((1/3)*det.*dT(:,2)).*Tc.*(By(:,1).*dphi3(:,2) - By(:,2).*dphi3(:,1)),3))];
+
+    D = D1 + D2 + 2*D3;
+    
+else
+    
+    % first term
+    D1 = Mesh.mfPi(vol.*(det.*dT).^2,'C');
+    D1 = D1(:)./4;
+    
+    dphi = Mesh.dphi;    
+    dphi1 = dphi{1}; dphi2 = dphi{2}; dphi3 = dphi{3}; dphi4 = dphi{4};
+    
+    [cof, dCof] = cofactor3D([],Mesh,0,1);
+    yc = reshape(yc,[],3);
+    dx1 = Mesh.mfdx1; dx2 = Mesh.mfdx2; dx3 = Mesh.mfdx3;
+    %det = dx1.D(yc(:,1)).*cof{1}(yc) + dx2.D(yc(:,1)).*cof{2}(yc) + dx3.D(yc(:,1)).*cof{3}(yc);
+    
+    % get boundaries
+    Dxi = @(i,j) Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi1(:,i)).^2,1) ... 
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi2(:,i)).^2,2) ...
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi3(:,i)).^2,3) ...
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi4(:,i)).^2,4); % diagonal of Dxi'*Dxi 
+    
+    Dxy = @(i,j,k,l) Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi1(:,i)).*(Tc.*cof{l}(yc).*dphi1(:,k)),1) ... % byproduct terms for verifications
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi2(:,i)).*(Tc.*cof{l}(yc).*dphi2(:,k)),2) ...
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi3(:,i)).*(Tc.*cof{l}(yc).*dphi3(:,k)),3) ...
+        + Mesh.mfPi(vol.*(Tc.*cof{j}(yc).*dphi4(:,i)).*(Tc.*cof{l}(yc).*dphi4(:,k)),4); % diagonal of Dxi'*Dxi 
+    
+    D21 = Dxi(1,1)+ Dxi(2,2) + Dxi(3,3) + 2*Dxy(1,1,2,2) + 2*Dxy(1,1,3,3) + 2*Dxy(2,2,3,3);
+    D22 = Dxi(1,4)+ Dxi(2,5) + Dxi(3,6) + 2*Dxy(1,4,2,5) + 2*Dxy(1,4,3,6) + 2*Dxy(2,5,3,6);
+    D23 = Dxi(1,7)+ Dxi(2,8) + Dxi(3,9) + 2*Dxy(1,7,2,8) + 2*Dxy(1,7,3,9) + 2*Dxy(2,8,3,9);
+    
+    D2 = [D21;D22;D23];
+    
+    % third term
+    D3 = [(Mesh.mfPi(vol.*((1/4)*det.*dT(:,1)).*Tc.*(cof{1}(yc).*dphi1(:,1) + cof{2}(yc).*dphi1(:,2) + cof{3}(yc).*dphi1(:,3)),1)) + ...
+          (Mesh.mfPi(vol.*((1/4)*det.*dT(:,1)).*Tc.*(cof{1}(yc).*dphi2(:,1) + cof{2}(yc).*dphi2(:,2) + cof{3}(yc).*dphi2(:,3)),2)) + ...
+          (Mesh.mfPi(vol.*((1/4)*det.*dT(:,1)).*Tc.*(cof{1}(yc).*dphi3(:,1) + cof{2}(yc).*dphi3(:,2) + cof{3}(yc).*dphi3(:,3)),3)) + ...
+          (Mesh.mfPi(vol.*((1/4)*det.*dT(:,1)).*Tc.*(cof{1}(yc).*dphi4(:,1) + cof{2}(yc).*dphi4(:,2) + cof{3}(yc).*dphi4(:,3)),4));...
+
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,2)).*Tc.*(cof{4}(yc).*dphi1(:,1) + cof{5}(yc).*dphi1(:,2) + cof{6}(yc).*dphi1(:,3)),1)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,2)).*Tc.*(cof{4}(yc).*dphi2(:,1) + cof{5}(yc).*dphi2(:,2) + cof{6}(yc).*dphi2(:,3)),2)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,2)).*Tc.*(cof{4}(yc).*dphi3(:,1) + cof{5}(yc).*dphi3(:,2) + cof{6}(yc).*dphi3(:,3)),3)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,2)).*Tc.*(cof{4}(yc).*dphi4(:,1) + cof{5}(yc).*dphi4(:,2) + cof{6}(yc).*dphi4(:,3)),4));...
+        
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,3)).*Tc.*(cof{7}(yc).*dphi1(:,1) + cof{8}(yc).*dphi1(:,2) + cof{9}(yc).*dphi1(:,3)),1)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,3)).*Tc.*(cof{7}(yc).*dphi2(:,1) + cof{8}(yc).*dphi2(:,2) + cof{9}(yc).*dphi2(:,3)),2)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,3)).*Tc.*(cof{7}(yc).*dphi3(:,1) + cof{8}(yc).*dphi3(:,2) + cof{9}(yc).*dphi3(:,3)),3)) + ...
+        (Mesh.mfPi(vol.*((1/4)*det.*dT(:,3)).*Tc.*(cof{7}(yc).*dphi4(:,1) + cof{8}(yc).*dphi4(:,2) + cof{9}(yc).*dphi4(:,3)),4))];
+
+    D = D1 + D2 + 2*D3;
+end
+    
 
 function runMinimalExample
 setup2DGaussianData

@@ -172,6 +172,10 @@ classdef TriMesh1 < handle
         mfdx1
         mfdx2
         mfGRAD
+        % ===================================
+        % Partial derivatives of Basis functions
+        % ===================================
+        dphi
     end
     
     properties (Access = private)
@@ -191,6 +195,7 @@ classdef TriMesh1 < handle
         mfGRAD_
         boundaryIdx_
         boundaryProj_
+        dphi_
     end
     
     methods
@@ -439,6 +444,14 @@ classdef TriMesh1 < handle
             end
             mfGRAD = this.mfGRAD_;
         end
+        
+        function dphi = get.dphi(this)
+            if isempty(this.dphi_),
+                [this.dphi_] = getBasisGradient(this);
+            end
+            dphi = this.dphi_;
+        end
+        
         function idx = get.boundaryIdx(this)
             if isempty(this.boundaryIdx_),
                 id = reshape(1:prod(this.m+1),this.m+1);

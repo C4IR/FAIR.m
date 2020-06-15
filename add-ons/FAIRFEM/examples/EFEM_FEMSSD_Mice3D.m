@@ -2,7 +2,7 @@
 % (c) Lars Ruthotto 2012/07/26, see FAIR.2 and FAIRcopyright.m.
 % http://www.mic.uni-luebeck.de/people/lars-ruthotto.html
 %
-% Mass-Preserving Registration of 3D PET of a mice heart using FEM
+% Registration of 3D PET of a mice heart using FEM
 %
 % ==================================================================================
 close all; clc; clear;
@@ -21,7 +21,7 @@ Mesh = TetraMesh1(omega,m);
 xc   = Mesh.xn;
 Rc = imgModel(R,omega,Mesh.mfPi(xc,'C'));
 Tc = imgModel(T,omega,Mesh.mfPi(xc,'C'));
-fctn = @(yc) FEMPIREobjFctn(T,Rc,Mesh,xc,yc(:));
+fctn = @(yc) FEMobjFctn(T,Rc,Mesh,xc,yc(:));
 fctn([]);
 
 FAIRplotsFEM('reset','mode','FEM','fig',level,'plots',1);
@@ -31,7 +31,7 @@ yc = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver','mbPCG-Jacobi');
 
 % matrixfree version
 regularizer('reset','regularizer','mfHyperElasticFEM','alpha',1e2);
-ycMF = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver',@FEMPIREsolveGN_PCG);
+ycMF = GaussNewton(fctn,xc(:),'Plots',@FAIRplotsFEM,'solver',@FEMSSDsolveGN_PCG);
 
 relerr = norm(yc-ycMF)/norm(yc)
 %showResults(ML,yc,'level',level);

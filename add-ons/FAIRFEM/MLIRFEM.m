@@ -179,7 +179,7 @@ for level=minLevel:maxLevel
     yn   = trafo(wc,xc(:));   
     yRef = reshape(yn,[],dim);  
   end;
-  Mesh.xn = reshape(yn,[],dim);
+  Mesh.xn = yRef;%reshape(yn,[],dim);
     
   % compute starting guess y0
   if level == minLevel,
