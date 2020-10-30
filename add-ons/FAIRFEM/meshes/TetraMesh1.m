@@ -171,6 +171,10 @@ classdef TetraMesh1 < handle
         mfdx2
         mfdx3
         mfGRAD
+        % ===================================
+        % Partial derivatives of Basis functions
+        % ===================================
+        dphi
     end
     
     properties (Access = private)
@@ -193,6 +197,7 @@ classdef TetraMesh1 < handle
         mfGRAD_
         boundaryIdx_
         boundaryProj_
+        dphi_
     end
     
     methods
@@ -762,6 +767,13 @@ classdef TetraMesh1 < handle
                 this.mfGRAD_ = getGradientMatrixFEM(this,1);
             end
             mfGRAD = this.mfGRAD_;
+        end
+        
+        function dphi = get.dphi(this)
+            if isempty(this.dphi_),
+                [this.dphi_] = getBasisGradient(this);
+            end
+            dphi = this.dphi_;
         end
         
         function idx = get.boundaryIdx(this)

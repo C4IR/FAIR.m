@@ -54,7 +54,6 @@ end;
 % setup default solver for Gauss-Newton systems
 
 if strcmp(task,'set') || strcmp(task,'reset'),
-    
     switch method,
         case 'mfElastic',
             scheme     = 'elastic';
@@ -105,6 +104,12 @@ if strcmp(task,'set') || strcmp(task,'reset'),
             grid       = 'FEM';
             solver     = 'backslash';
             
+        case 'mfHyperElasticFEM',
+            scheme     = 'hyperElasticFEM';
+            matrixFree = 1;
+            grid       = 'FEM';
+            solver     = 'PCG-hyperElastic';
+
         case 'mbElasticFEM',
             scheme     = 'elasticFEM';
             matrixFree = 0;
