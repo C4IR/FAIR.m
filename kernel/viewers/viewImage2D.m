@@ -1,25 +1,3 @@
-%==============================================================================
-% This code is part of the Matlab-based toolbox
-% FAIR - Flexible Algorithms for Image Registration. 
-% For details see 
-% - https://github.com/C4IR and
-% - http://www.siam.org/books/fa06/
-%==============================================================================
-% function ih = viewImage2D(T,omega,m,varargin)
-%
-% THE 2D image viewer, basically calls image.m with the appropriate x1,x2 axis
-%
-% Input
-%   T           discretized image
-%   Omega       domain specification
-%               Omega = (omega(1),omega(2)) x ... x (omega(2*d-1,omega(2*d)), 
-%               spatial dimension d = length(omega/2)
-%    m          number of discretization points
-%   varargin    optional parameters like {'axis','off'}
-%
-% Output
-%  ih           image handle
-% =======================================================================================
 
 function varargout = viewImage2D(T,omega,m,varargin)
 

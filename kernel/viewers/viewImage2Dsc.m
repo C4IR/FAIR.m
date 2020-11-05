@@ -28,6 +28,12 @@ if nargin==0
     return;
 end
 
+if not(exist('m','var')), 
+  m = size(T); 
+end;
+if not(exist('omega','var')),
+  omega = reshape([1+0*m;m],1,[]);
+end;
 h  = (omega(2:2:end)-omega(1:2:end))./m;
 xi = @(i) (omega(2*i-1)+h(i)/2:h(i):omega(2*i)-h(i)/2)';
 ih = imagesc(xi(1),xi(2),reshape(T,m)'); axis xy image

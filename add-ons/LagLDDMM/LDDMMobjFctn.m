@@ -90,8 +90,7 @@ doDerivative = (nargout>2);            % flag for necessity of derivatives
 if nt<1
     [yc,dy,pTrafo] = getTrafoFromVelocityRK4(vc,xc,'omega',omegaV,'m',mV,'N',N,'tspan',tspan,'doDerivative',doDerivative);
 else
-    [yc,dy,pTrafo] = getTrafoFromInstationaryVelocityRK4(vc,xc,'omega',omegaV,...
-                        'm',mV,'N',N,'tspan',tspan,'doDerivative',doDerivative);
+    [yc,dy,pTrafo] = getTrafoFromInstationaryVelocityRK4(vc,xc,omegaV,[mV,nt],'N',N,'tspan',tspan,'doDerivative',doDerivative);
 end
 [Tc,dT] = imgModel(T,omega,center(yc,m),'doDerivative',doDerivative);
 

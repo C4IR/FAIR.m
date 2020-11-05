@@ -1,7 +1,7 @@
 %==============================================================================
 % This code is part of the Matlab-based toolbox
-% FAIR - Flexible Algorithms for Image Registration. 
-% For details see 
+% FAIR - Flexible Algorithms for Image Registration.
+% For details see
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 %==============================================================================
@@ -23,7 +23,7 @@
 %
 % the operator H can be a
 %    - matrix (matrixBased)
-%    - function (coding the action ofH) 
+%    - function (coding the action ofH)
 %    - struct where H describes the pieces of a complex H
 %
 %  (1) action of H: distance + regularizer,
@@ -42,6 +42,7 @@
 function [dy,solver] = solveLinearSystem(rhs,H,solver,varargin)
 
 if nargin == 0,
+  testSolver
   help(mfilename);
   runMinimalExample;
   dy = 'endOfMinimalExample';
@@ -61,19 +62,19 @@ if isempty(solver) && isnumeric(H),
 end;
 
 if isa(solver,'function_handle')
-   dy     = solver(rhs,H,maxIterCG,tolCG);
-   return;
+  dy     = solver(rhs,H,maxIterCG,tolCG);
+  return;
 end
 
 if isstruct(H), % matrixFree mode, configure operator
-    Hoperator = @(x) ...
-        H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-        + H.d2S.d2S(x,H.omega,H.m);
+  Hoperator = @(x) ...
+    H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+    + H.d2S.d2S(x,H.omega,H.m);
 end;
 
 %------------------------------------------------------------------------------
 switch solver
-%------------------------------------------------------------------------------
+  %------------------------------------------------------------------------------
   
   % ---------------------------------------------------------------------------
   % matrix based
@@ -84,7 +85,7 @@ switch solver
     
   case 'mbCG',
     [dy,flag,relres,iter] = pcg(H,rhs,tolCG,maxIterCG);
-
+    
   case 'mbPCG-SGS',
     L   = tril(H); % Symmetric Gauss Seidel Preconditioning,
     D   = diag(H); % L is lower, D is diagonal, U = L'
@@ -102,11 +103,11 @@ switch solver
     [dy,flag,relres,iter] = pcg(H,rhs,tolCG,maxIterCG,PC);
     
     
-
-  % ---------------------------------------------------------------------------
-  % matrix free
-  % ---------------------------------------------------------------------------
-
+    
+    % ---------------------------------------------------------------------------
+    % matrix free
+    % ---------------------------------------------------------------------------
+    
     % In all matrix free solvers the approximates Hessian is supplied by function handle.
     % Note, that the functionals have the common form
     %
@@ -119,21 +120,21 @@ switch solver
     % the function handle, but all variables needed to built such.
     % For multi-grid (available for elastic and curvature), only the diagonal of the distance
     % term is used
-    % whereas in conjugate gradient (CG, available for elastic, curvature and hyperelastic) 
+    % whereas in conjugate gradient (CG, available for elastic, curvature and hyperelastic)
     % methods we can model also the off-diagonals d2D(x) = (P'*dr'*d2psi*dr*P) * x
     %
     % The default solver for a chosen regularizer is parameterized by d2S.solver.
     % However, one can overload this setting using
     %    >> MLIR(..., 'solverNPIR','myFavoriteSolver', ... );
     
-  case {'MG-elastic'}, % multigrid for elastic regularizer
+  case {'MG-elastic','MG'}, % multigrid for elastic regularizer
     dy = MGsolver(rhs,H);
     
   case {'CG-elastic','CG-curvature'},
     if isstruct(H)
-%       A         = @(x) ...
-%         H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-%         + H.d2S.d2S(x,H.omega,H.m);
+      %       A         = @(x) ...
+      %         H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+      %         + H.d2S.d2S(x,H.omega,H.m);
       [dy,flag,relres,iter] = pcg(Hoperator,rhs,tolCG,maxIterCG);
     else
       [dy,flag,relres,iter] = pcg(H,rhs,tolCG,maxIterCG);
@@ -142,9 +143,9 @@ switch solver
   case {'PCG-elastic','PCG-curvature'}
     
     % operator
-%     A         = @(x) ...
-%       H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-%       + H.d2S.d2S(x,H.omega,H.m);
+    %     A         = @(x) ...
+    %       H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+    %       + H.d2S.d2S(x,H.omega,H.m);
     % preconditioner
     Ddiag = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
     D = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.omega,H.m);
@@ -158,30 +159,30 @@ switch solver
       [dy,flag,relres,iter] = pcg(H,rhs,tolCG,maxIterCG);
     end
     
-    case {'PCG-hyperElastic'}
-       M         = @(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
-       Hoperator = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-       Ddiag     = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
-       D         = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
-       Preconditioner = @(x) D.\x; % Jacobi preconditioner
-       [dy,flag,relres,iter] = pcg(Hoperator,rhs,tolCG,maxIterCG,Preconditioner);
-
+  case {'PCG-hyperElastic'}
+    M         = @(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
+    Hoperator = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+    Ddiag     = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
+    D         = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
+    Preconditioner = @(x) D.\x; % Jacobi preconditioner
+    [dy,flag,relres,iter] = pcg(Hoperator,rhs,tolCG,maxIterCG,Preconditioner);
+    
   otherwise,
     keyboard
     error(1)
-
-%------------------------------------------------------------------------------
+    
+    %------------------------------------------------------------------------------
 end
 %------------------------------------------------------------------------------
 
 if exist('flag','var')
   flags = {
     sprintf('iter=%d>maxIter=%d but relres=%e>relResTol=%s',...
-      iter,maxIterCG,relres,tolCG)
+    iter,maxIterCG,relres,tolCG)
     'preconditioner is ill-conditioned'
     'stagnation: x_k=x_{k+1}'
     'scalars too small/large to continue computation'
-  };
+    };
   switch flag
     case {1,2,3,4}
       fprintf('%s // PCG: %s\n',flags{flag});
@@ -263,7 +264,7 @@ regularizer('reset','regularizer','mbCurvature','alpha',1e4);
 regularizer('reset','regularizer','mfCurvature','alpha',1e4);
 [Jc,para,dJmfCurv,HmfCurv] = NPIRobjFctn(T,Rc,omega,m,yRef,yc);
 HxCurv = @(x) HmfCurv.d2D.P((HmfCurv.d2D.dr'*HmfCurv.d2D.d2psi*HmfCurv.d2D.dr)*HmfCurv.d2D.P(x)) ...
-        + HmfCurv.d2S.d2S(x,HmfCurv.omega,HmfCurv.m);
+  + HmfCurv.d2S.d2S(x,HmfCurv.omega,HmfCurv.m);
 
 problems = {
   'PIR-backslash'
@@ -375,6 +376,7 @@ for j = 1:length(problems)
       solver = 'CG-curvature';
       H = HmfElas; b = -dJmfElas'; Hx = HxElas;
       
+    case 'MG'
       
     otherwise,
       error('1');
@@ -423,57 +425,57 @@ return;
 %     return
 % end
 
-    %
-    %     %     case {'Joint-CG-hyperElastic'}
-    %     %         Afctn = @(x) H.M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-    %     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
-    %     %     case {'CG-hyperElastic'}
-    %     %         M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
-    %     %         Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-    %     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
-    %     %     otherwise
-    %     %         if isnumeric(H)
-    %     %             % if H is a matrix, solve the linear system using MATLAB's backslash
-    %     %             dy = H\rhs;
-    %     %         else
-    %     %             error(solver)
-    %     %         end
+%
+%     %     case {'Joint-CG-hyperElastic'}
+%     %         Afctn = @(x) H.M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
+%     %     case {'CG-hyperElastic'}
+%     %         M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
+%     %         Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
+%     %     otherwise
+%     %         if isnumeric(H)
+%     %             % if H is a matrix, solve the linear system using MATLAB's backslash
+%     %             dy = H\rhs;
+%     %         else
+%     %             error(solver)
+%     %         end
 %   otherwise,
 %     keyboard
 %     error(1)
 %     %
-    %   case {'PCG-hyperElastic'}
-    %     M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
-    %     Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-    %     Ddiag = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
-    %     D = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
-    %     PC = @(x) D.\x; % Jacobi preconditioner
-    %     [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG,PC);
-    %
-    %     %   case {'PCG-elastic','PCG-curvature'}
-    %     %     % operator
-    %     %     A         = @(x) ...
-    %     %       H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
-    %     %       + H.d2S.d2S(x,H.omega,H.m);
-    %     %     % preconditioner
-    %     %     Ddiag = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
-    %     %     D = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.omega,H.m);
-    %     %     PC = @(x) D.\x; % Jacobi preconditioner
-    %     %     [dy,flag,relres,iter] = pcg(A,rhs,tolCG,maxIterCG,PC);
-    %
-    %
-    %     %     case {'Joint-CG-hyperElastic'}
-    %     %         Afctn = @(x) H.M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-    %     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
-    %     %     case {'CG-hyperElastic'}
-    %     %         M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
-    %     %         Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
-    %     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
-    %     %     otherwise
-    %     %         if isnumeric(H)
-    %     %             % if H is a matrix, solve the linear system using MATLAB's backslash
-    %     %             dy = H\rhs;
-    %     %         else
-    %     %             error(solver)
-    %     %         end
+%   case {'PCG-hyperElastic'}
+%     M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
+%     Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%     Ddiag = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
+%     D = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.d2S.yc);
+%     PC = @(x) D.\x; % Jacobi preconditioner
+%     [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG,PC);
+%
+%     %   case {'PCG-elastic','PCG-curvature'}
+%     %     % operator
+%     %     A         = @(x) ...
+%     %       H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x)) ...
+%     %       + H.d2S.d2S(x,H.omega,H.m);
+%     %     % preconditioner
+%     %     Ddiag = diag(H.d2D.dr'*H.d2D.d2psi*H.d2D.dr);
+%     %     D = H.d2D.P(full(Ddiag))  +  H.d2S.diag(H.omega,H.m);
+%     %     PC = @(x) D.\x; % Jacobi preconditioner
+%     %     [dy,flag,relres,iter] = pcg(A,rhs,tolCG,maxIterCG,PC);
+%
+%
+%     %     case {'Joint-CG-hyperElastic'}
+%     %         Afctn = @(x) H.M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
+%     %     case {'CG-hyperElastic'}
+%     %         M =@(x) H.d2D.P((H.d2D.dr'*H.d2D.d2psi*H.d2D.dr)*H.d2D.P(x));
+%     %         Afctn = @(x) M(x) + H.d2S.d2S(x,H.omega,H.m,H.d2S.yc);
+%     %         [dy,flag,relres,iter] = pcg(Afctn,rhs,tolCG,maxIterCG);
+%     %     otherwise
+%     %         if isnumeric(H)
+%     %             % if H is a matrix, solve the linear system using MATLAB's backslash
+%     %             dy = H\rhs;
+%     %         else
+%     %             error(solver)
+%     %         end
 

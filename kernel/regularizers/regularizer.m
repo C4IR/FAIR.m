@@ -74,6 +74,12 @@ if strcmp(task,'set') || strcmp(task,'reset'),
             grid       = 'nodal';
             solver     = 'backslash';
             
+        case 'mfElasticNodal',
+            scheme     = 'elasticNodal';
+            matrixFree = 1;
+            grid       = 'nodal';
+            solver     = 'PCG';
+            
         case 'mbCurvature',
             scheme     = 'curvature';
             matrixFree = 0;
@@ -110,6 +116,12 @@ if strcmp(task,'set') || strcmp(task,'reset'),
             matrixFree = 0;
             grid       = 'FEM';
             solver     = 'backslash';
+
+      case 'mfElasticFEM',
+            scheme     = 'elasticFEM';
+            matrixFree = 1;
+            grid       = 'FEM';
+            solver     = 'MG';
             
         otherwise
             scheme = method;

@@ -102,7 +102,7 @@ dispHis(his(2,:));
 while 1, 
   % check stopping rules
   STOP(1) = (iter>0) && abs(Jold-Jc)   <= tolJ*(1+abs(Jstop));
-  STOP(2) = (iter>0) && (norm(yc-yOld) <= tolY*(1+norm(y0)));
+  STOP(2) = (iter>0) && (norm(yc-yOld) <= tolY*(1+norm(yStop)));
   STOP(3) = norm(dJ)                   <= tolG*(1+abs(Jstop));
   STOP(4) = norm(dJ)                   <= 1e6*eps;
   STOP(5) = (iter >= maxIter);
@@ -149,7 +149,7 @@ fprintf('STOPPING:\n');
 fprintf('%d[ %-10s=%16.8e <= %-25s=%16.8e]\n',STOP(1),...
   '(Jold-Jc)',(Jold-Jc),'tolJ*(1+|Jstop|)',tolJ*(1+abs(Jstop)));
 fprintf('%d[ %-10s=%16.8e <= %-25s=%16.8e]\n',STOP(2),...
-  '|yc-yOld|',norm(yc-yOld),'tolY*(1+norm(yc)) ',tolY*(1+norm(yc)));
+  '|yc-yOld|',norm(yc-yOld),'tolY*(1+norm(yc)) ',tolY*(1+norm(yStop)));
 fprintf('%d[ %-10s=%16.8e <= %-25s=%16.8e]\n',STOP(3),...
   '|dJ|',norm(dJ),'tolG*(1+abs(Jstop))',tolG*(1+abs(Jstop)));
 fprintf('%d[ %-10s=%16.8e <= %-25s=%16.8e]\n',STOP(4),...

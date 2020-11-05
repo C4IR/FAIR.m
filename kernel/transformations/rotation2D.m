@@ -24,7 +24,9 @@ function [y,dy] = rotation2D(w,x,varargin)
 % Q(x) = kron( I_2 , [x(:,1),x(:,2),1] );
 persistent Q
 
+c            = zeros(2,1);
 doDerivative = (nargout>1); % flag for computing the derivative
+
 for k=1:2:length(varargin), % overwrite default parameter
   eval([varargin{k},'=varargin{',int2str(k+1),'};']);
 end;
@@ -43,10 +45,6 @@ end;
 if isempty(w) || (size(Q,1) ~= numel(x)),
   n = length(x)/2; x = reshape(x,n,2);
   Q = [x,ones(n,1),sparse(n,3);sparse(n,3),x,ones(n,1)];
-end;
-c = zeros(2,1);
-for k=1:2:length(varargin), % overwrites default parameter
-  eval([varargin{k},'=varargin{',int2str(k+1),'};']);
 end;
 
 if isempty(Q), feval(mfilename,w,x);  end;
