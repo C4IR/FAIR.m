@@ -5,7 +5,7 @@
 % - https://github.com/C4IR and
 % - http://www.siam.org/books/fa06/
 %==============================================================================
-% This is a testing environment for the files in the folder kernel/viewer
+% This is a testing environment for the files in the folder kernel/viewers
 % 1. Based on data/contents, a list of required files is generated and it 
 %    is verified, that all files are present; additional files are listed.
 % 2. All c-files are compiled.

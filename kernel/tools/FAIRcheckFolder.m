@@ -95,9 +95,10 @@ end;
 % 
 % if strcmp(FAIRignoreCompiles,'on')
 %   ignore = zeros(length(credit),1);
+%   mexall = mexext('all');
 %   for k=1:length(credit)
 %     [~,~,ext] = fileparts(credit{k});
-%     ignore(k) =  any(strcmp(ext,{'.o',['.',mexext]}));
+%     ignore(k) =  any(strcmp(ext,[{'.o'},strcat({'.'}, {mexall.ext})]));
 %   end;
 %   credit(find(ignore)) = [];    
 % end;
@@ -113,7 +114,7 @@ if addons>0,
   % keyboard
 end;
 
-% merge debit and andons, sort by type
+% merge debit and addons, sort by type
 files = {debit{:},credit{:}};
 ext           = @(str) str(max(1,find(str=='.',1,'last')):end);
 extensions    = cellfun(ext,files','UniformOutput',0)';
@@ -133,7 +134,8 @@ FAIRmessage('=');
 
 function [C,OK] = sortFiles(list)
 
-ext = {'.cpp','.c','.h','.o',['.',mexext],'.mexa64','.mat','.jpg','.m'};
+mexall = mexext('all');
+ext = [{'.cpp','.c','.h','.o','.mat','.jpg','.m'}, strcat({'.'}, {mexall.ext})];
 C = []; R = 1:length(list);
 for p=1:length(ext),
   K = find(strcmp(list,ext{p}));
@@ -142,6 +144,6 @@ for p=1:length(ext),
 end;
 OK = isempty(R);
 for k=1:length(R)
-  fprintf(' - %d-of-%d, unknown extension [%s]\n',j,length(R),list{R(k)} )
+  fprintf(' - %d-of-%d, unknown extension [%s]\n',k,length(R),list{R(k)} )
 end;
 %==============================================================================
